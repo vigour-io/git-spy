@@ -39,40 +39,39 @@ var spy = module.exports = {
             continue;
           }
         }
-
-        if(sub.fields){
-
-        }
-
-
-        if( !~callbacksToExecute.indexOf(sub.callback) ){
-          callbacksToExecute.push( sub.callback );
-        }
-      }
-console.log(0)
-      if(subsWithFields.length === 0){console.log(1)
-        fulfill( callbacksToExecute );
-      } else {
-
       }
 
+      return getDiffs(intersection, hookshotData)
+        .then(function(diffs){
+          //diffs will be [ {'package.json':{ version: "1.0.0" } , ...]
+          var files = [];
+          for(var i = 0, l = intersection.length; i < l; i++){
+            var file = _.filter(sub.files, { path: intersection[i] })[0];
+            file.diff = diffs[i];
+            files.push(file);
+          }
+          if( checkDiffForFields(files) ){
+            if( !~callbacksToExecute.indexOf(sub.callback) ){
+              callbacksToExecute.push( sub.callback );
+              fulfill( callbacksToExecute );
+            }
+          }
+        });
     });
   }
 };
 
-var checkForFields = function(files, fields){
-  return new Promise(function(fulfill, reject){
-    //make request for diff for each file
-    setTimeout(function(){
-      var response = {
-        'package.json':{
-          version: "1.0.0"
-        }
-      };
+var checkDiffForFields = function(files){
+  // return true or false weather we want callback executed or not
+}
 
-      fulfill(true);
-    }, 200)
-  })
+var getDiffs = function(files, hookshotData){
+  var promises = [];
+  for(var i = 0, l = files.length; i < l; i++){
+    var promise = magicCallAPI(file.path, hookshotData)
+    promises.push(promise);
+  }
+  return Promise.all(promises);
 }
 
 

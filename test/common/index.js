@@ -29,7 +29,6 @@ describe('Git-Spy-POC', function(){
           assert.equal(callbacks.length, 2);
         })
         .done(done);
-
     });
   });
 });
