@@ -28,10 +28,10 @@ var patterns = module.exports = {
           'vigour',
           'gaston',
           'services',
-          'gaston.less.something'
+          'gaston.less.something',
+          'gaston.branches.*.version'
         ]
       }
-
     ],
   },
 
@@ -47,3 +47,4 @@ var patterns = module.exports = {
     ]
   }
 }
+

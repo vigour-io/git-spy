@@ -2,6 +2,26 @@ var _ = require('lodash');
 var Promise = require('bluebird')
 var subscriptions = [];
 
+//
+//var aPattern = {
+//  "$": {
+//    "production": {
+//      'package.json': {
+//        "version": true
+//      }
+//    },
+//    "staging":  {
+//      'package.json': {
+//        "version": true
+//      }
+//    }
+//  }
+//}
+//
+//var triggers = _.map(flat, function(v, k){
+//  return k.split('|')
+//})
+
 var spy = module.exports = {
   subscriptions: subscriptions,
   on: function(pattern, callback){
@@ -15,7 +35,9 @@ var spy = module.exports = {
         reject( Error('you have to pass hookshotData') );
       }
       var callbacksToExecute = [];
+      var callbacksToTrack = [];
       var subsWithFields = [];
+      var getDiffsPromises = [];
 
       for(var i = 0, l = subscriptions.length; i < l; i++){
         var sub = subscriptions[i];
@@ -31,49 +53,92 @@ var spy = module.exports = {
         }
 
         // // checking for files
-        if(sub.files){
-          var fileNames = _.pluck(sub.files, 'path'); 
-          console.log('files', fileNames);
-          var intersection = _.intersection(hookshotData.files, fileNames);
+        if ( sub.files ) {
+          var fileNames = _.pluck(sub.files, 'path')
+            , intersection = [];
+          if (_.contains(fileNames, '*')) {
+            intersection = hookshotData.files
+          } else {
+            intersection = _.intersection(hookshotData.files, fileNames);
+          }
           if(intersection.length === 0){
             continue;
+          } else {
+            (function (subscription, filesToMatch) {
+              var getDiffPromise = getDiffs(filesToMatch, hookshotData)
+                .then(function (diffs) {
+                  var files = []
+                  for(var i = 0, l = filesToMatch.length; i < l; i++){
+                    var file = _.filter(subscription.files, function (subFile) {
+                      return subFile.path === '*' || subFile.path === filesToMatch[i]
+                    })[0];
+                    var fileToCheckDiff = {}
+                    fileToCheckDiff.diff = diffs[i]
+                    fileToCheckDiff.fields = file.fields
+                    files.push(fileToCheckDiff);
+                  }
+                  var checkedDiffs = checkDiffForFields(files)
+                  var diffForACallback = _.reduce(checkedDiffs, function (result, diff) {
+                    result[Object.keys(diff.diff)[0]] = diff.diff[Object.keys(diff.diff)[0]]
+                    return result
+                  }, {})
+                  if( checkedDiffs.length ){
+                    if( !~callbacksToTrack.indexOf(subscription.callback) ){
+                      callbacksToTrack.push( subscription.callback );
+                      callbacksToExecute.push({
+                        fn: subscription.callback,
+                        args: diffForACallback
+                      })
+                    }
+                  }
+                })
+              getDiffsPromises.push(getDiffPromise)
+            })(sub, intersection)
           }
         }
       }
-
-      return getDiffs(intersection, hookshotData)
-        .then(function(diffs){
-          //diffs will be [ {'package.json':{ version: "1.0.0" } , ...]
-          var files = [];
-          for(var i = 0, l = intersection.length; i < l; i++){
-            var file = _.filter(sub.files, { path: intersection[i] })[0];
-            file.diff = diffs[i];
-            files.push(file);
-          }
-          if( checkDiffForFields(files) ){
-            if( !~callbacksToExecute.indexOf(sub.callback) ){
-              callbacksToExecute.push( sub.callback );
-              fulfill( callbacksToExecute );
-            }
-          }
-        });
+      Promise.all(getDiffsPromises).then(function () {
+        fulfill( callbacksToExecute );
+        _.each(callbacksToExecute, function(callback){
+          callback.fn.call(null, hookshotData, callback.args)
+        })
+      })
     });
   }
 };
 
 var checkDiffForFields = function(files){
-  // return true or false weather we want callback executed or not
+  return _.filter(files, function (file) {
+    if (_.isUndefined(file.fields)) {
+      return true
+    } else {
+      var fileName = Object.keys(file.diff)[0]
+      var diffFields = Object.keys(flattenObject(file.diff[fileName]))
+      return !!_.intersection(diffFields, file.fields).length
+    }
+  })
+   //return true or false weather we want callback executed or not
 }
 
 var getDiffs = function(files, hookshotData){
   var promises = [];
   for(var i = 0, l = files.length; i < l; i++){
-    var promise = magicCallAPI(file.path, hookshotData)
+    var promise = magicCallAPI(files[i], hookshotData)
     promises.push(promise);
   }
   return Promise.all(promises);
 }
 
+
+var magicCallAPI = function (filePath, hookshotData) {
+  var resp = {}
+  resp[filePath] = {'version': '0.1.0'}
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      resolve(resp)
+    }, 500)
+  })
+}
 
 var checkInArray = function(what, where){
   where = Array.isArray(where)? where : [where];
@@ -83,6 +148,26 @@ var checkInArray = function(what, where){
   return false;
 };
 
+var flattenObject = function(ob, delimiter) {
+  var delimiter = delimiter || '.';
+  var toReturn = {};
+
+  for (var i in ob) {
+    if (!ob.hasOwnProperty(i)) continue;
+
+    if ((typeof ob[i]) == 'object') {
+      var flatObject = flattenObject(ob[i], delimiter);
+      for (var x in flatObject) {
+        if (!flatObject.hasOwnProperty(x)) continue;
+
+        toReturn[i + delimiter + x] = flatObject[x];
+      }
+    } else {
+      toReturn[i] = ob[i];
+    }
+  }
+  return toReturn;
+};
 
 
 
