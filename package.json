@@ -28,6 +28,12 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "npmlog": "^1.2.1",
+    "oboe": "^2.1.2",
+    "restify": "^3.0.3"
+  },
+  "devDependencies": {
+    "request": "^2.60.0"
   }
 }
