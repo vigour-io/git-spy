@@ -23,21 +23,16 @@ describe('restify server', function(){
 
   it('should handle 404s', function(done){
     request.get(serverURL + '/some-faulty-url', function(err, res, body){
-      if(err){
-        throw err;
-      }
-      assert.ok(res.statusCode, 404);
+      assert.equal(res.statusCode, 404);
       done();
     });
   });
 
-  it('should return 200 for post requests to /push', function(done){
+  it('should return 202 (Accepted) for post requests to /push', function(done){
     var data = { json: mocks.hookshotData };
     request.post(serverURL + '/push', data, function(err, res, body){
-      if(err){
-        throw err;
-      }
-      assert.ok(res.statusCode, 404);
+      assert.equal(res.statusCode, 202);
+      assert.equal(body, 'ACCEPTED');
       done();
     });
   });

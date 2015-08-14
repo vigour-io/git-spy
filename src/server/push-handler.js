@@ -4,9 +4,8 @@ var oboe = require('oboe')
 
 
 module.exports = function (req, res) { 
-  res.sendStatus(200).end();
-  return;
-
+  res.status(202);
+  res.end('ACCEPTED');
   var h
     , before
     , after
@@ -18,7 +17,7 @@ module.exports = function (req, res) {
     , f = {}
 
   oboe(req)
-    .node('before', function (b) { console.log('b', b);
+    .node('before', function (b) {
       before = b
       return oboe.drop
     })
@@ -73,7 +72,7 @@ module.exports = function (req, res) {
       finish.call(this)
     })
 
-  function finish () {
+  function finish () { console.log('finished')
     branch = ref.slice(ref.lastIndexOf('/') + 1)
     var hookData = {
       'repoId': repoId,

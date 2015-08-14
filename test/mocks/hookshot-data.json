@@ -1,4 +1,4 @@
-var hookshotData = module.exports = {
+{
     "ref": "refs/heads/develop",
     "before": "3b441d018bcdf1a58285a7c9f360e6da2fd6ecb9",
     "after": "5e5202d6fae1061b50ebf67eea488b58b22867ac",
@@ -166,4 +166,4 @@ var hookshotData = module.exports = {
         "type": "User",
         "site_admin": false
     }
-};
+}
