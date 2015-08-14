@@ -3,17 +3,8 @@ var log = require('npmlog')
   , express = require('express')
   , bodyParser = require('body-parser')
   , Promise = require('bluebird')
-  , pushHandler = require('./push-handler')
+  , hookshotParser = require('../hookshot-manager').parseFromGithub
   , theServer
-
-var theServer = restify.createServer({
-  name: 'git-spy',
-  version: '1.0.0'
-});
-
-theServer.use(restify.CORS());
-theServer.use(restify.fullResponse());
-theServer.post('/push', pushHandler);
 
 var Server = module.exports = {
   running: false,
@@ -32,3 +23,22 @@ var Server = module.exports = {
     theServer.close();
   }
 };
+
+theServer = restify.createServer({
+  name: 'git-spy',
+  version: '1.0.0'
+});
+
+theServer.use(restify.CORS());
+theServer.use(restify.fullResponse());
+
+theServer.post('/push', function(req, res){
+  hookshotParser( req )
+    .then(function(hookData){
+      res.status(202);
+      res.end('ACCEPTED');
+    })
+    .catch(function(err){
+      console.log('err', err);
+    })
+});

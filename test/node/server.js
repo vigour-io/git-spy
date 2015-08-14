@@ -29,8 +29,7 @@ describe('restify server', function(){
   });
 
   it('should return 202 (Accepted) for post requests to /push', function(done){
-    var data = { json: mocks.hookshotData };
-    request.post(serverURL + '/push', data, function(err, res, body){
+    request.post(serverURL + '/push', {}, function(err, res, body){
       assert.equal(res.statusCode, 202);
       assert.equal(body, 'ACCEPTED');
       done();
