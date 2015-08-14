@@ -1,10 +1,7 @@
 var config = require('../../config')
   , request = require('request')
   , server = require('../../src/server')
-  , serverURL = 'http://localhost:' + config.port
-  , mocks = {
-    hookshotData: require('../mocks/hookshot-data')
-  };
+  , serverURL = 'http://localhost:' + config.port;
 
 describe('restify server', function(){
 

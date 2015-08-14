@@ -3,7 +3,7 @@ var log = require('npmlog')
   , express = require('express')
   , bodyParser = require('body-parser')
   , Promise = require('bluebird')
-  , hookshotParser = require('../hookshot-manager').parseFromGithub
+  , parseFromGithub = require('../hookshot-manager').parseFromGithub
   , theServer
 
 var Server = module.exports = {
@@ -13,7 +13,7 @@ var Server = module.exports = {
     return new Promise(function(fulfill, reject){
       theServer.listen(config.port, function(){
         Server.running = true;
-        console.log('Listening for hookshots on port', Server.port);
+        log.info('Listening for hookshots on port', Server.port);
         fulfill();
       })
     });
@@ -21,6 +21,7 @@ var Server = module.exports = {
   stop: function(){
     Server.running = false;
     theServer.close();
+    log.info('Closed the server');
   }
 };
 
@@ -33,7 +34,7 @@ theServer.use(restify.CORS());
 theServer.use(restify.fullResponse());
 
 theServer.post('/push', function(req, res){
-  hookshotParser( req )
+  parseFromGithub( req )
     .then(function(hookData){
       res.status(202);
       res.end('ACCEPTED');

@@ -19,6 +19,7 @@ module.exports = function (req) {
     .node( 'commits.*.added.*', commitsAdded(hookData) )
     .node( '*', checkPath(hookData) )
     .done(function (body) {
+      hookData.branch = hookData.ref && hookData.ref.split('/').pop();
       hookData.files = hookData.files && Object.keys( hookData.files );
       fulfill( hookData );
     })
@@ -27,8 +28,8 @@ module.exports = function (req) {
 };
 
 var before = function(hookData){
-  return function (before) {
-    hookData.before = before;
+  return function (b) {
+    hookData.before = b;
     return oboe.drop
   };
 };
