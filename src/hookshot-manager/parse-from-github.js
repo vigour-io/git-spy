@@ -4,21 +4,22 @@ var Promise = require('bluebird')
 
 
 module.exports = function (req) {
-  var hookData = {};
+  var parser = new OboeParser();
   return new Promise(function(fulfill, reject){
     oboe(req)
-    .node( 'before', before(hookData) )
-    .node( 'after', after(hookData) )
-    .node( 'ref', refData(hookData) )
-    .node( 'repository.name', repoName(hookData) )
-    .node( 'repository.owner.name', ownerName(hookData) )
-    .node( 'head_commit.id', headCommitId(hookData) )
-    .node( 'commits.*.id', commits(hookData) )
-    .node( 'commits.*.timestamp', commitsTimestamp(hookData) )
-    .node( 'commits.*.modified.*', commitsModified(hookData) )
-    .node( 'commits.*.added.*', commitsAdded(hookData) )
-    .node( '*', checkPath(hookData) )
+    .node( 'before', parser.before.bind(parser) )
+    .node( 'after', parser.after.bind(parser) )
+    .node( 'ref', parser.refData.bind(parser) )
+    .node( 'repository.name', parser.repoName.bind(parser) )
+    .node( 'repository.owner.name', parser.ownerName.bind(parser) )
+    .node( 'head_commit.id', parser.headCommitId.bind(parser) )
+    .node( 'commits.*.id', parser.commits.bind(parser) )
+    .node( 'commits.*.timestamp', parser.commitsTimestamp.bind(parser) )
+    .node( 'commits.*.modified.*', parser.commitsModified.bind(parser) )
+    .node( 'commits.*.added.*', parser.commitsAdded.bind(parser) )
+    .node( '*', parser.checkPath.bind(parser) )
     .done(function (body) {
+      var hookData = parser.hookData;
       hookData.branch = hookData.ref && hookData.ref.split('/').pop();
       hookData.files = hookData.files && Object.keys( hookData.files );
       fulfill( hookData );
@@ -27,91 +28,66 @@ module.exports = function (req) {
   });
 };
 
-var before = function(hookData){
-  return function (b) {
-    hookData.before = b;
-    return oboe.drop
-  };
+var OboeParser = function(hookData){
+  this.hookData = {};
 };
 
-var after = function(hookData){
-  return function (after) {
-    hookData.after = after;
+OboeParser.prototype = {
+  before: function (before) {
+    this.hookData.before = before;
     return oboe.drop
-  };
-};
-
-var refData = function(hookData){
-  return function (refData) {
-    hookData.ref = refData;
+  },
+  after: function (after) {
+    this.hookData.after = after;
     return oboe.drop
-  };
-};
-
-var repoName = function(hookData){
-  return function (name) {
-    hookData.repo = name;
+  },
+  refData: function (refData) {
+    this.hookData.ref = refData;
     return oboe.drop
-  };
-};
-
-var ownerName = function(hookData){
-  return function (name) {
-    hookData.owner = name;
+  },
+  repoName: function (name) {
+    this.hookData.repo = name;
     return oboe.drop
-  };
-};
-
-var headCommitId = function(hookData){
-  return function (headCommit) {
-    hookData.headCommit = headCommit;
+  },
+  ownerName: function (name) {
+    this.hookData.owner = name;
     return oboe.drop
-  };
-};
-
-var commits = function(hookData){
-  return function (commitId, path, ancestors) {
-    hookData.commits = hookData.commits || {};
-    hookData.commits[commitId] = {
+  },
+  headCommitId: function (headCommit) {
+    this.hookData.headCommit = headCommit;
+    return oboe.drop
+  },
+  commits: function (commitId, path, ancestors) {
+    this.hookData.commits = this.hookData.commits || {};
+    this.hookData.commits[commitId] = {
       files: [],
       timestamp: ''
     }
-  };
-};
-
-var commitsTimestamp = function(hookData){
-  return function (timestamp, path, ancestors) {
+  },
+  commitsTimestamp: function (timestamp, path, ancestors) {
     var commitId = ancestors[ancestors.length-2].id
-    hookData.commits[commitId].timestamp = timestamp
+    this.hookData.commits[commitId].timestamp = timestamp
     return oboe.drop
-  };
-};
-
-var commitsModified = function(hookData){
-  return function (file, path, ancestors) {
-    hookData.files = hookData.files || {};
+  },
+  commitsModified: function (file, path, ancestors) {
+    this.hookData.files = this.hookData.files || {};
     var commitId = ancestors[ancestors.length-3].id
-    hookData.commits[commitId].files.push(file)
-    hookData.files[file] = true;
+    this.hookData.commits[commitId].files.push(file)
+    this.hookData.files[file] = true;
     return oboe.drop
-  };
-};
-
-var commitsAdded = function(hookData){
-  return function (file, path, ancestors) {
-    hookData.files = hookData.files || {};
+  },
+  commitsAdded: function (file, path, ancestors) {
+    this.hookData.files = this.hookData.files || {};
     var commitId = ancestors[ancestors.length-3].id
-    hookData.commits[commitId].files.push(file)
-    hookData.files[file] = true
+    this.hookData.commits[commitId].files.push(file)
+    this.hookData.files[file] = true
     return oboe.drop
-  };
-};
-
-var checkPath = function(hookData){
-  return function (a, path, ancestors) {
+  },
+  checkPath: function (a, path, ancestors) {
     if (path[0] === 'commits' && path[path.length - 1] === 'id'){
       return;
     }
     return oboe.drop;
   }
 };
+
