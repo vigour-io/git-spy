@@ -1,25 +1,21 @@
 var log = require('npmlog')
-  , restify = require('restify')
+  , express = require('express')
+  , bodyParser = require('body-parser')
   , Promise = require('bluebird')
-  // , hookListener = require('./hook-listener')
+  , pushHandler = require('./push-handler')
+  , theServer
 
-var restServer = restify.createServer({
-  name: 'git-spy',
-  version: '1.0.0'
-});
-
-var listen = Promise.promisify( restServer.listen );
-restServer.use( restify.CORS() );
-restServer.use( restify.fullResponse() );
-restServer.post( '/push', pushHandler );
-restServer.use( serveCode(404) );
+var app = express();
+app.use( bodyParser.json() );
+app.post( '/push', pushHandler );
+app.use( handle404 );
 
 var Server = module.exports = {
   running: false,
   start: function connect(config){
     Server.port = config.port;
     return new Promise(function(fulfill, reject){
-      restServer.listen(Server.port, function(){
+      theServer = app.listen(Server.port, function(){
         Server.running = true;
         log.info("Listening for hookshots on port", Server.port);
         fulfill();
@@ -27,17 +23,10 @@ var Server = module.exports = {
     });
   },
   stop: function(){
-    restServer.close();
+    theServer.close();
   }
 };
 
-
-function pushHandler(req, res){
-  res.send('something');
-}
-
-function serveCode (code) {
-  return function (req, res) {
-    res.status(code).end(code + " " + req.originalUrl)
-  }
-}
+function handle404(req, res){
+  res.sendStatus(404);
+};

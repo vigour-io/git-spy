@@ -1,39 +1,43 @@
-var request = require('request')
+var config = require('../../config')
+  , request = require('request')
   , server = require('../../src/server')
-  , config = require('../../config');
+  , serverURL = 'http://localhost:' + config.port
+  , mocks = {
+    hookshotData: require('../mocks/hookshot-data')
+  };
 
 describe('restify server', function(){
 
+  before(function(done){
+    server.start(config)
+      .then(done);
+  });
+
   after(function(){
     server.stop();
-  })
+  });
 
-  it('should start the server', function(done){
-    server.start( config )
-      .then(function(){
-        assert.ok(server.running);
-      })
-      .done(done)
+  it('should start the server', function(){
+    assert.ok(server.running);
   });
 
   it('should handle 404s', function(done){
-    var url = 'http://localhost:' + server.port + '/some-faulty-url'
-    request(url, function(err, res, body){
+    request.get(serverURL + '/some-faulty-url', function(err, res, body){
       if(err){
         throw err;
       }
-      assert.equal(res.statusCode, 404);
+      assert.ok(res.statusCode, 404);
       done();
     });
   });
 
   it('should return 200 for post requests to /push', function(done){
-    var url = 'http://localhost:' + server.port + '/push';
-    request.post(url, function(err, res, body){
+    var data = { json: mocks.hookshotData };
+    request.post(serverURL + '/push', data, function(err, res, body){
       if(err){
         throw err;
       }
-      assert.equal(res.statusCode, 200);
+      assert.ok(res.statusCode, 404);
       done();
     });
   });

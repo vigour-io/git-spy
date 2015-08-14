@@ -3,7 +3,10 @@ var oboe = require('oboe')
   // , hooks = require('./subscriptions')
 
 
-module.exports = function (req, res) {
+module.exports = function (req, res) { 
+  res.sendStatus(200).end();
+  return;
+
   var h
     , before
     , after
@@ -13,9 +16,9 @@ module.exports = function (req, res) {
     , branch
     , c = {}
     , f = {}
-  log.info("Received hookshot")
+
   oboe(req)
-    .node('before', function (b) {
+    .node('before', function (b) { console.log('b', b);
       before = b
       return oboe.drop
     })
