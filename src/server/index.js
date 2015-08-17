@@ -30,8 +30,8 @@ theServer = restify.createServer({
   version: '1.0.0'
 });
 
-theServer.use(restify.CORS());
-theServer.use(restify.fullResponse());
+theServer.use( restify.CORS() );
+theServer.use( restify.fullResponse() );
 
 theServer.post('/push', function(req, res){
   parseFromGithub( req )

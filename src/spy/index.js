@@ -1,6 +1,11 @@
+var matchSubscriptions = require( './match-subscriptions' )
+  , subscriptions = [];
+
+
 
 var spy = module.exports = {
-  // subscriptions: subscriptions,
+  subscriptions: subscriptions,
+  match: matchSubscriptions,
   on: function(pattern, callback){
     var patterns = [];
     var repos = Object.keys(pattern);
@@ -11,84 +16,83 @@ var spy = module.exports = {
       pat.callback = callback;
       subscriptions.push(pat);
     }
-  },
-
-  match: function(hookshotData){
-    return new Promise(function(fulfill, reject){
-      if(!hookshotData){
-        reject( Error('you have to pass hookshotData') );
-      }
-      var callbacksToExecute = [];
-      var callbacksToTrack = [];
-      var subsWithFields = [];
-      var getDiffsPromises = [];
-
-      for(var i = 0, l = subscriptions.length; i < l; i++){
-        var sub = subscriptions[i];
-        // checking for repo
-        if( !checkInArray(hookshotData.repoId, sub.repo) ){
-          continue;
-        }
-
-        // //checking for branch
-        var outBranch = hookshotData.branch;
-        if( sub.branch && !checkInArray(hookshotData.branch, sub.branch) ){
-          continue;
-        }
-
-        // // checking for files
-        if ( sub.files ) {
-          var fileNames = _.pluck(sub.files, 'path')
-            , intersection = [];
-          if (_.contains(fileNames, '*')) {
-            intersection = hookshotData.files
-          } else {
-            intersection = _.intersection(hookshotData.files, fileNames);
-          }
-          if(intersection.length === 0){
-            continue;
-          } else {
-            (function (subscription, filesToMatch) {
-              var getDiffPromise = getDiffs(filesToMatch, hookshotData)
-                .then(function (diffs) {
-                  var files = []
-                  for(var i = 0, l = filesToMatch.length; i < l; i++){
-                    var file = _.filter(subscription.files, function (subFile) {
-                      return subFile.path === '*' || subFile.path === filesToMatch[i]
-                    })[0];
-                    var fileToCheckDiff = {}
-                    fileToCheckDiff.diff = diffs[i]
-                    fileToCheckDiff.fields = file.fields
-                    files.push(fileToCheckDiff);
-                  }
-                  var checkedDiffs = checkDiffForFields(files)
-                  var diffForACallback = _.reduce(checkedDiffs, function (result, diff) {
-                    result[Object.keys(diff.diff)[0]] = diff.diff[Object.keys(diff.diff)[0]]
-                    return result
-                  }, {})
-                  if( checkedDiffs.length ){
-                    if( !~callbacksToTrack.indexOf(subscription.callback) ){
-                      callbacksToTrack.push( subscription.callback );
-                      callbacksToExecute.push({
-                        fn: subscription.callback,
-                        args: diffForACallback
-                      })
-                    }
-                  }
-                })
-              getDiffsPromises.push(getDiffPromise)
-            })(sub, intersection)
-          }
-        }
-      }
-      Promise.all(getDiffsPromises).then(function () {
-        fulfill( callbacksToExecute );
-        _.each(callbacksToExecute, function(callback){
-          callback.fn.call(null, hookshotData, callback.args)
-        })
-      })
-    });
   }
+  // match: function(hookshotData){
+  //   return new Promise(function(fulfill, reject){
+  //     if(!hookshotData){
+  //       reject( Error('you have to pass hookshotData') );
+  //     }
+  //     var callbacksToExecute = [];
+  //     var callbacksToTrack = [];
+  //     var subsWithFields = [];
+  //     var getDiffsPromises = [];
+
+  //     for(var i = 0, l = subscriptions.length; i < l; i++){
+  //       var sub = subscriptions[i];
+  //       // checking for repo
+  //       if( !checkInArray(hookshotData.repoId, sub.repo) ){
+  //         continue;
+  //       }
+
+  //       // //checking for branch
+  //       var outBranch = hookshotData.branch;
+  //       if( sub.branch && !checkInArray(hookshotData.branch, sub.branch) ){
+  //         continue;
+  //       }
+
+  //       // // checking for files
+  //       if ( sub.files ) {
+  //         var fileNames = _.pluck(sub.files, 'path')
+  //           , intersection = [];
+  //         if (_.contains(fileNames, '*')) {
+  //           intersection = hookshotData.files
+  //         } else {
+  //           intersection = _.intersection(hookshotData.files, fileNames);
+  //         }
+  //         if(intersection.length === 0){
+  //           continue;
+  //         } else {
+  //           (function (subscription, filesToMatch) {
+  //             var getDiffPromise = getDiffs(filesToMatch, hookshotData)
+  //               .then(function (diffs) {
+  //                 var files = []
+  //                 for(var i = 0, l = filesToMatch.length; i < l; i++){
+  //                   var file = _.filter(subscription.files, function (subFile) {
+  //                     return subFile.path === '*' || subFile.path === filesToMatch[i]
+  //                   })[0];
+  //                   var fileToCheckDiff = {}
+  //                   fileToCheckDiff.diff = diffs[i]
+  //                   fileToCheckDiff.fields = file.fields
+  //                   files.push(fileToCheckDiff);
+  //                 }
+  //                 var checkedDiffs = checkDiffForFields(files)
+  //                 var diffForACallback = _.reduce(checkedDiffs, function (result, diff) {
+  //                   result[Object.keys(diff.diff)[0]] = diff.diff[Object.keys(diff.diff)[0]]
+  //                   return result
+  //                 }, {})
+  //                 if( checkedDiffs.length ){
+  //                   if( !~callbacksToTrack.indexOf(subscription.callback) ){
+  //                     callbacksToTrack.push( subscription.callback );
+  //                     callbacksToExecute.push({
+  //                       fn: subscription.callback,
+  //                       args: diffForACallback
+  //                     })
+  //                   }
+  //                 }
+  //               })
+  //             getDiffsPromises.push(getDiffPromise)
+  //           })(sub, intersection)
+  //         }
+  //       }
+  //     }
+  //     Promise.all(getDiffsPromises).then(function () {
+  //       fulfill( callbacksToExecute );
+  //       _.each(callbacksToExecute, function(callback){
+  //         callback.fn.call(null, hookshotData, callback.args)
+  //       })
+  //     })
+  //   });
+  // }
 };
 
 var checkDiffForFields = function(files){

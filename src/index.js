@@ -5,6 +5,7 @@ var log = require('npmlog')
   , server = require('./server')
   , githubAPI = require('./github-api');
 
+module.exports = spy;
 
 server.start( config )
   .then(function(){
@@ -12,4 +13,4 @@ server.start( config )
   })
   .catch(function(err){
     log.error('git-spy', 'failure to start', err)
-  })
+  });

@@ -1,0 +1,9 @@
+{
+  "all repos": {
+    "*": true
+  },
+  "two repos": {
+    "vjs": true,
+    "vui": true
+  }
+}
