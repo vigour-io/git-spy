@@ -7,7 +7,7 @@ var spy = require('../../src/spy')
 describe('registering subscriptions', function(){
 
   beforeEach(function(){
-    spy.subscriptions.splice(0);    
+    spy.subscriptions.splice(0);
   });
 
   it('should register one pattern to one subscription', function(){
