@@ -1,26 +1,48 @@
 var Promise = require('bluebird')
-  , _ = require('lodash');
+  , _ = require('lodash')
+  , diff = require('./diff');
 
 var match = module.exports = function(hookshotData){
-  var path = ['repo', 'branch', 'files'];
   var spy = require('./');
+  var subs = spy.subscriptions;
+  var matched = tryToMatch(spy.subscriptions, hookshotData);
 
-  return new Promise(function(fulfill, reject){
-    var subs = spy.subscriptions;
-    var matched = tryToMatch(spy.subscriptions, hookshotData);
-
-    var callbacks = matched.map(function(sub){
-      return sub.callback;
-    })
-    .filter(function(item, idx, arr){
-      return arr.indexOf(item) === idx;
-    });
-
-    return fulfill(callbacks);
+  var callbacks = matched.map(function(sub){
+    return sub.callback;
+  })
+  .filter(function(item, idx, arr){
+    return arr.indexOf(item) === idx;
   });
+
+  return getFilesDiff(hookshotData)
+    .then(function(diffs){
+      console.log('diffs', diffs);
+    })
+    .catch(function (err) {
+      console.log('error', err.stack)
+    });;
 };
 
-var tryToMatch = function(subs, hookshot){
+var getFilesDiff = function getFilesDiff(hookshotData){
+  var factory = fetchFileFactory(hookshotData);
+  var files = hookshotData.files;
+  var promises = [];
+  for(var i = 0, l = hookshotData.files.length; i < l; i++){
+    var file = files[i];
+    promises.push( factory(file) );
+  }
+  return Promise.all(promises)
+    .then(function(res){
+      var diffs = {};
+      for(var i = 0, l = files.length; i < l; i++){
+        var file = files[i];
+        diffs[file] = res[i];
+      }
+      return diffs;
+    });
+}
+
+var tryToMatch = function tryToMatch(subs, hookshot){
   var matched = [];
   var repo = hookshot.repo;
   var branch = hookshot.branch;
@@ -56,4 +78,30 @@ var tryToMatch = function(subs, hookshot){
 
   }
   return matched;
+};
+
+function fetchFile (owner, repo, path, sha) {
+  githubApi = require('../github-api')
+  return new Promise(function (resolve, reject) {
+    githubApi.fetchFile({
+      owner: owner,
+      repo: repo,
+      path: path,
+      sha: sha
+    }, resolve, reject)
+  })
+}
+
+function fetchFileFactory (hookshotData) {
+  return function(filePath) {
+    var after, before;
+    return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.after)
+      .then(function (resp) {
+        after = JSON.parse(resp);
+        return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.before)
+      }).then(function (resp) {
+        before = JSON.parse(resp);
+        return diff(before, after);
+      })
+  }
 }

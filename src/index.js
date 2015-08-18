@@ -3,9 +3,16 @@ var log = require('npmlog')
   , config = require('../config')
   , spy = require('./spy')
   , server = require('./server')
-  , githubAPI = require('./github-api');
+  , githubApi = require('./github-api');
 
 module.exports = spy;
+
+githubApi.authenticate(config)
+githubApi.init(function (resp) {
+  log.info( 'githubApi initialized' )
+}, function (err) {
+  log.warn('githubApi failed to initialize', err)
+})
 
 server.start( config )
   .then(function(){

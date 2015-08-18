@@ -1,22 +1,20 @@
 {
-    "ref": "refs/heads/develop",
-    "before": "3b441d018bcdf1a58285a7c9f360e6da2fd6ecb9",
-    "after": "5e5202d6fae1061b50ebf67eea488b58b22867ac",
-    "branch": "develop",
+    "ref": "refs/heads/master",
+    "before": "72acd445c10ee4a816f301e8d92b3d04b1ad6082",
+    "after": "e17054dd56b2486a22060de04d3b9d04b30c3008",
     "commits": {
-        "5e5202d6fae1061b50ebf67eea488b58b22867ac": {
+        "e17054dd56b2486a22060de04d3b9d04b30c3008": {
             "files": [
-                ".editorconfig",
-                "lib/input/index.js"
+                "package.json"
             ],
-            "timestamp": "2015-08-13T16:48:57+02:00"
+            "timestamp": "2015-08-18T17:10:46+02:00"
         }
     },
     "files": [
-        ".editorconfig",
-        "lib/input/index.js"
+        "package.json"
     ],
-    "headCommit": "5e5202d6fae1061b50ebf67eea488b58b22867ac",
-    "repo": "vui",
-    "owner": "vigour-io"
+    "headCommit": "e17054dd56b2486a22060de04d3b9d04b30c3008",
+    "repo": "git-spy-tests",
+    "owner": "vigour-io",
+    "branch": "master"
 }

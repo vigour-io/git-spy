@@ -1,4 +1,7 @@
-var spy = require('../../src/spy')
+var log = require('npmlog')
+  , config = require('../../config')
+  , githubApi = require('../../src/github-api')
+  , spy = require('../../src/spy')
   , mocks = {
     hookshotData: require('../mocks/hookshot-result'),
     patterns: require('../mocks/patterns'),
@@ -8,7 +11,14 @@ var spy = require('../../src/spy')
 
 describe('matching hookshotData to subscriptions', function(){
 
-  before(function(){
+  before(function(done){
+    githubApi.authenticate(config)
+    githubApi.init(function (resp) {
+      log.info( 'githubApi initialized' )
+      done();
+    }, function (err) {
+      log.warn('githubApi failed to initialize', err)
+    })
     spy.on( mocks.patterns['all repos'], mocks.callbacks.one );
     spy.on( mocks.patterns['two repos'], mocks.callbacks.two );
     spy.on( mocks.patterns['repo with branches'], mocks.callbacks.three );
