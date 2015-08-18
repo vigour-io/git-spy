@@ -8,12 +8,16 @@ var spy = require('../../src/spy')
 
 describe('matching hookshotData to subscriptions', function(){
 
-  it('hookData should match subscription with repo = *', function(done){
-    spy.match(mocks.hookshotData, mocks.patterns['all repos'])
-      .then(function(matches){
-        assert.ok(matches);
-      })
-      .done(done);
+  before(function(){
+    spy.on( mocks.patterns['all repos'], mocks.callbacks.one );
+    spy.on( mocks.patterns['two repos'], mocks.callbacks.two );
+    spy.on( mocks.patterns['repo with branches'], mocks.callbacks.three );
+    spy.on( mocks.patterns['branch with files'], mocks.callbacks.three );
+    
+  });
+
+  it('hookData should match subscription with repo = *', function(){
+    spy.match(mocks.hookshotData);
   });
 
 });

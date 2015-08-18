@@ -5,5 +5,23 @@
   "two repos": {
     "vjs": true,
     "vui": true
+  },
+  "repo with branches": {
+    "vui": {
+      "master": true,
+      "develop": true
+    }
+  },
+  "branch with files": {
+    "vui": {
+      "master": {
+        "package.json": true,
+        "something.json": true
+      },
+      "develop": {
+        "package.json": true,
+        "lib/input/index.js": true
+      }
+    }
   }
 }
