@@ -7,9 +7,13 @@ var spy = require('../../src/spy')
   , patterns;
 
 describe('matching hookshotData to subscriptions', function(){
-  
-  it('hookData should match subscription with repo = *', function(){
-    assert.ok( spy.match(mocks.hookshotData, mocks.patterns['all repos']) );
+
+  it('hookData should match subscription with repo = *', function(done){
+    spy.match(mocks.hookshotData, mocks.patterns['all repos'])
+      .then(function(matches){
+        assert.ok(matches);
+      })
+      .done(done);
   });
 
 });

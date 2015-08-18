@@ -7,11 +7,19 @@ var spy = module.exports = {
   subscriptions: subscriptions,
   match: matchSubscriptions,
   on: function(pattern, callback){
-    var subscription = {
-      pattern: pattern,
-      callback: callback
-    };
-    subscriptions.push(subscription);
+    var patterns = [];
+    var repos = Object.keys(pattern);
+    for(var i = 0, l = repos.length; i < l; i++){
+      var pat = {};
+      var repo = repos[i]; 
+      pat[repo] = pattern[repo];
+      pat.callback = callback;
+      subscriptions.push(pat);
+    }
+    console.log(subscriptions);
+  },
+  clearSubscriptions: function(){
+    spy.subscriptions.splice(0, spy.subscriptions.length);
   }
   // match: function(hookshotData){
   //   return new Promise(function(fulfill, reject){
