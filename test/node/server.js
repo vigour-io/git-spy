@@ -1,7 +1,10 @@
 var config = require('../../config')
   , request = require('request')
   , server = require('../../src/server')
-  , serverURL = 'http://localhost:' + config.port;
+  , serverURL = 'http://localhost:' + config.port
+  , mocks = {
+    hookshotData: require('../mocks/hookshot-data')
+  };
 
 describe('restify server', function(){
 
@@ -26,7 +29,8 @@ describe('restify server', function(){
   });
 
   it('should return 202 (Accepted) for post requests to /push', function(done){
-    request.post(serverURL + '/push', {}, function(err, res, body){
+    var data = { json: mocks.hookshotData }
+    request.post(serverURL + '/push', data, function(err, res, body){
       assert.equal(res.statusCode, 202);
       assert.equal(body, 'ACCEPTED');
       done();

@@ -7,15 +7,29 @@
     "vui": true
   },
   "repo with branches": {
-    "vui": {
+    "git-spy-tests": {
       "master": true,
       "develop": true
     }
   },
   "branch with files": {
-    "vui": {
+    "git-spy-tests": {
       "master": {
         "package.json": true,
+        "something.json": true
+      },
+      "develop": {
+        "package.json": true,
+        "lib/input/index.js": true
+      }
+    }
+  },
+  "file with fields": {
+    "git-spy-tests": {
+      "master": {
+        "package.json": {
+            "gaston.something": true
+          },
         "something.json": true
       },
       "develop": {

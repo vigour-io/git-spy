@@ -3,6 +3,7 @@ var log = require('npmlog')
   , express = require('express')
   , bodyParser = require('body-parser')
   , Promise = require('bluebird')
+  , spy = require('../spy')
   , parseFromGithub = require('../hookshot-manager').parseFromGithub
   , theServer
 
@@ -34,12 +35,21 @@ theServer.use( restify.CORS() );
 theServer.use( restify.fullResponse() );
 
 theServer.post('/push', function(req, res){
+  var hookshotData;
   parseFromGithub( req )
     .then(function(hookData){
+      hookshotData = hookData;
       res.status(202);
       res.end('ACCEPTED');
+      return hookData;
+    })
+    .then(function(hookData){
+      return spy.match(hookData)
+    })
+    .then(function(res){
+      spy.executeCallbacks(res.callbacks, hookshotData, res.diffs);
     })
     .catch(function(err){
-      console.log('err', err);
+      console.log('err', err.stack);
     })
 });

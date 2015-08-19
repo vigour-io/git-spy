@@ -1,48 +1,20 @@
 var Promise = require('bluebird')
-  , _ = require('lodash')
-  , diff = require('./diff');
+  , _ = require('lodash');
 
-var match = module.exports = function(hookshotData){
+var match = module.exports = function(hookshotData, diffs){
   var spy = require('./');
   var subs = spy.subscriptions;
-  var matched = tryToMatch(spy.subscriptions, hookshotData);
 
-  var callbacks = matched.map(function(sub){
-    return sub.callback;
-  })
-  .filter(function(item, idx, arr){
-    return arr.indexOf(item) === idx;
-  });
-
-  return getFilesDiff(hookshotData)
-    .then(function(diffs){
-      console.log('diffs', diffs);
+  return tryToMatch( spy.subscriptions, hookshotData, diffs )
+    .map(function(sub){
+        return sub.callback;
     })
-    .catch(function (err) {
-      console.log('error', err.stack)
-    });;
+    .filter(function(item, idx, arr){
+      return arr.indexOf(item) === idx;
+    });
 };
 
-var getFilesDiff = function getFilesDiff(hookshotData){
-  var factory = fetchFileFactory(hookshotData);
-  var files = hookshotData.files;
-  var promises = [];
-  for(var i = 0, l = hookshotData.files.length; i < l; i++){
-    var file = files[i];
-    promises.push( factory(file) );
-  }
-  return Promise.all(promises)
-    .then(function(res){
-      var diffs = {};
-      for(var i = 0, l = files.length; i < l; i++){
-        var file = files[i];
-        diffs[file] = res[i];
-      }
-      return diffs;
-    });
-}
-
-var tryToMatch = function tryToMatch(subs, hookshot){
+var tryToMatch = function tryToMatch(subs, hookshot, diffs){
   var matched = [];
   var repo = hookshot.repo;
   var branch = hookshot.branch;
@@ -72,36 +44,44 @@ var tryToMatch = function tryToMatch(subs, hookshot){
     }
     subFiles = Object.keys(subFiles);
     var intersection = _.intersection(subFiles, files);
-    if( intersection.length > 0 ){
-      matched.push(sub);
+    if( intersection.length === 0 ){
+      continue;
+    }
+    subFiles = branches[branch];
+    for(var j = 0, ll = intersection.length; j < ll; j++){
+      var file = intersection[j];
+      var subFile = subFiles[file];
+      if(subFile === true){
+        matched.push(sub);
+        break;
+      }
+
+      var subFields = Object.keys(subFile);
+      if( matchFields(file, subFields, diffs) ){
+        matched.push(sub);
+        break;
+      };
+      
     }
 
   }
   return matched;
 };
 
-function fetchFile (owner, repo, path, sha) {
-  githubApi = require('../github-api')
-  return new Promise(function (resolve, reject) {
-    githubApi.fetchFile({
-      owner: owner,
-      repo: repo,
-      path: path,
-      sha: sha
-    }, resolve, reject)
-  })
-}
-
-function fetchFileFactory (hookshotData) {
-  return function(filePath) {
-    var after, before;
-    return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.after)
-      .then(function (resp) {
-        after = JSON.parse(resp);
-        return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.before)
-      }).then(function (resp) {
-        before = JSON.parse(resp);
-        return diff(before, after);
-      })
+var matchFields = function matchFields(file, subFields, diff){
+  var thisDiff = diff[file];
+  for(var i = 0, l = subFields.length; i < l; i++){
+    var parsedField = subFields[i].split('.');
+    for(var j = 0, ll = parsedField.length; j < ll; j++){
+      thisDiff = thisDiff[ parsedField[j] ];
+      if(!thisDiff){
+        break;
+      }
+      if(j === ll -1){
+        return true;
+      }
+    }
   }
-}
+  return false;
+};
+
