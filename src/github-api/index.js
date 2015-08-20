@@ -13,7 +13,23 @@ var githubApi = module.exports = {
   createHook: createHook,
   getHooks: getHooks,
   fetchFile: fetchFile,
-  init: init,
+  init: function() {
+    if( githubApi.initialized ){
+      return Promise.resolve();
+    }
+    return new Promise(function(fulfill, reject){
+      getHooks(function (hooks) {
+        var pushHook = _.find(hooks, function(hook) {
+          return hook.config === config.hooks.callbackUrl + '/push'
+        });
+
+        if (!pushHook) {
+          createHook( { event: 'push' }, fulfill, reject )
+        }
+        githubApi.initialized = true;
+      }, reject)
+    });
+  },
   authenticate: function(cfg) {
     config = cfg;
     this.authenticated = true
@@ -21,20 +37,6 @@ var githubApi = module.exports = {
   }
 };
 
-
-function init () {
-  return new Promise(function(fulfill, reject){
-    getHooks(function (hooks) {
-      var pushHook = _.find(hooks, function(hook) {
-        return hook.config === config.hooks.callbackUrl + '/push'
-      });
-
-      if (!pushHook) {
-        createHook( { event: 'push' }, fulfill, reject )
-      }
-    }, reject)
-  });
-};
 
 function getHooks (callback, errCallback) {
   return sendRequest({
