@@ -5,29 +5,37 @@ module.exports = function diff (before, after) {
   return parseDiff(fixedSchemas.before, fixedSchemas.after)
 }
 
-function fixSchema (before, after) {
-  var b = _.extend(before, {})
-    , a = _.extend(after, {})
+function fixSchema (bef, aft) {
+  var before = _.extend(bef, {})
+    , after = _.extend(aft, {})
 
-  fix(b, a)
-  fix(a, b)
+  fix(before, after)
+  fix(after, before)
 
   return {
-    before: b,
-    after:  a
+    before: before,
+    after:  after
   }
 }
 
 function fix (subject, model) {
   _.each(model, function (modelValue, modelKey) {
 
-    if ( subject[modelKey] === modelValue ) return
+    if( subject[modelKey] === modelValue ){
+      return;
+    }
 
-    if ( _.isNull(subject[modelKey]) )      return
+    if( _.isNull(subject[modelKey]) ){
+      return;
+    }
 
-    if ( _.isUndefined(subject[modelKey]) ) return subject[modelKey] = null
+    if( _.isUndefined(subject[modelKey]) ){
+      return subject[modelKey] = null;
+    } 
 
-    if ( _.isObject(modelValue) )           return fix(subject[modelKey], modelValue)
+    if( _.isObject(modelValue) ){
+      return fix(subject[modelKey], modelValue);
+    }
   })
 }
 
@@ -35,26 +43,18 @@ function fix (subject, model) {
 function parseDiff (before, after) {
   var difference = {}
   _.each(after, function (value, key) {
-    if ( _.isEqual(before[key], value) ) return
+    if( _.isEqual(before[key], value) ) {
+      return;
+    }
 
-    if ( _.isNull(before[key]) )         return difference[key] = value
+    if( _.isNull(before[key]) ){
+      return difference[key] = value;
+    }
 
     difference[key] = _.isObject(value) ? parseDiff(before[key], value) : value
-  })
-  return difference
+  });
+  
+  return difference;
 }
 
 
-// no sure if we need to use cleanUp, it's purpose was to remove irrelevant {} artifacts
-// but seems it only creates problems by removing relevant data
-// so now diff doesn't use it, but we need to test the output with it and without it
-
-function cleanUp (obj) {
-  var obj = _.extend(obj, {})
-  _.each(obj, function (v, k) {
-    if ( !_.isObject(v) ) return
-
-    _.isEmpty(v) ? delete obj[k] : cleanUp(obj[k])
-  })
-  return obj
-}
