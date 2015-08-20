@@ -7,7 +7,7 @@ var log = require('npmlog')
   , serverURL = 'http://localhost:' + config.port
   , mocks = {
     patterns: require('../mocks/patterns'),
-    hookshotData: require('../mocks/hookshot-data')
+    hookshotData: require('../mocks/hookshot-result')
   };
 
 describe('executing the callbacks', function(){
@@ -24,27 +24,31 @@ describe('executing the callbacks', function(){
     });
   });
 
-  // after(function(){
-  //   server.stop();
-  // });
+  beforeEach(function(){
+    spy.clearSubscriptions();
+  });
 
-  // beforeEach(function(){
-  //   spy.clearSubscriptions();
-  // });
-
-
-  // //[TODO: learn how to write this tests]
-  // it('should execute callback for hookshotData', function(done){
-  //   this.timeout(5000)
-  //   var callback = sinon.spy();
-  //   spy.on( mocks.patterns['file with fields'], callback );
-  //   var data = { json: mocks.hookshotData };
-  //   request.post(serverURL + '/push', data, function(err, res, body){
-  //     setTimeout(function(){
-  //       expect(callback).to.have.been.called()
-  //       done();
-  //     }, 1500);
-  //   });
-  // });
+  it('should execute callback for hookshotData', function(done){
+    var diffs, callbacks;
+    var hookshotData = mocks.hookshotData;
+    var cb = sinon.spy();
+    spy.on( mocks.patterns['file with fields'], cb );
+    spy.match( hookshotData )
+      .then(function(res){
+        callbacks = res.callbacks;
+        diffs = res.diffs;
+        assert.equal( callbacks.length, 1 );
+        assert.equal( callbacks[0], cb );
+      })
+      .then(function(){
+        spy.executeCallbacks( callbacks, hookshotData, diffs );
+      })
+      .then(function(){
+        // cb.should.have.been.called;
+        expect(cb).to.have.been.called;
+      })
+      .done( done );
+    
+  });
 
 });
