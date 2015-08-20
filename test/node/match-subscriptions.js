@@ -12,11 +12,13 @@ var log = require('npmlog')
 describe('matching hookshotData to subscriptions', function(){
 
   before(function(done){
-    githubApi.authenticate(config)
-    githubApi.init(function (resp) {
-      log.info( 'githubApi initialized' )
+    githubApi.authenticate(config);
+    githubApi.init()
+      .then(function (resp) {
+      log.info( 'githubApi initialized' );
       done();
-    }, function (err) {
+    })
+    .catch(function (err) {
       log.warn('githubApi failed to initialize', err)
     });
   });

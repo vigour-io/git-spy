@@ -7,12 +7,14 @@ var log = require('npmlog')
 
 module.exports = spy;
 
-githubApi.authenticate(config)
-githubApi.init(function (resp) {
-  log.info( 'githubApi initialized' )
-}, function (err) {
-  log.warn('githubApi failed to initialize', err)
-})
+githubApi.authenticate(config);
+githubApi.init()
+  .then(function (resp) {
+    log.info( 'githubApi initialized' )
+  })
+  .catch(function (err) {
+    log.warn('githubApi failed to initialize', err)
+  });
 
 server.start( config )
   .then(function(){

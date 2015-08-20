@@ -12,16 +12,17 @@ var log = require('npmlog')
 
 describe('executing the callbacks', function(){
 
-  // before(function(done){
-  //   githubApi.authenticate(config)
-  //   githubApi.init(function (resp) {
-  //     log.info( 'githubApi initialized' )
-  //     server.start(config)
-  //     .then(done);
-  //   }, function (err) {
-  //     log.warn('githubApi failed to initialize', err)
-  //   });
-  // });
+  before(function(done){
+    githubApi.authenticate(config)
+    githubApi.init()
+      .then(function (resp) {
+      log.info( 'githubApi initialized' );
+      done();
+    })
+    .catch(function (err) {
+      log.warn('githubApi failed to initialize', err)
+    });
+  });
 
   // after(function(){
   //   server.stop();
