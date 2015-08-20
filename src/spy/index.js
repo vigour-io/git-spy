@@ -15,7 +15,7 @@ var spy = module.exports = {
       .then(function(){
         return matchSubscriptions( hookshotData, diffs );
       })
-      .then(function(callbacks){ console.log('here')
+      .then(function(callbacks){
         return {
           callbacks: callbacks,
           diffs: diffs
