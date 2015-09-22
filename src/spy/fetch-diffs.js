@@ -22,6 +22,9 @@ module.exports = function getFilesDiff (hookshotData) {
 
 var fetchFileFactory = function fetchFileFactory (hookshotData) {
   return function (filePath) {
+    if (path.extname(filePath) !== '.json') {
+      return Promise.resolve({})
+    }
     var after, before
     return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.after)
       .then(function (resp) {
