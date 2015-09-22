@@ -1,3 +1,4 @@
+var path = require('path')
 var parseDiff = require('./parse-diffs')
 var githubApi = require('../github-api')
 
