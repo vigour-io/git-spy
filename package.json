@@ -1,37 +1,15 @@
 {
   "name": "git-spy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "src/spy/index.js",
   "scripts": {
     "start": "node src/index.js",
     "test": "gaston test"
   },
-  "author": "",
+  "author": "andre.padez@gmail.com",
   "license": "ISC",
-  "gaston": {
-    "port": 8080,
-    "socket-port": 9000,
-    "no-auto-reload": false,
-    "no-package": false,
-    "bundle": "./",
-    "build": "./",
-    "browserify": {
-      "transforms": []
-    },
-    "less": {
-      "options": {}
-    },
-    "smaps": "true",
-    "source-maps": true,
-    "remote-logging": false,
-    "require-paths": {}
-  },
   "dependencies": {
-    "bluebird": "^2.9.34",
-    "body-parser": "^1.13.3",
-    "express": "^4.13.3",
-    "gaston": "^0.12.0",
     "lodash": "^3.10.1",
     "npmlog": "^1.2.1",
     "oboe": "^2.1.2",
