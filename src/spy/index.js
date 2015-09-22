@@ -40,7 +40,6 @@ var spy = module.exports = {
           callbacks: callbacks,
           diffs: diffs
         }
-        console.log(res)
         return res
       })
   },

@@ -1,7 +1,6 @@
 var log = require('npmlog')
 var restify = require('restify')
 var Promise = require('bluebird')
-var spy = require('../spy')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
 
@@ -33,6 +32,7 @@ theServer.use(restify.CORS())
 theServer.use(restify.fullResponse())
 
 theServer.post('/push', function (req, res) {
+  var spy = require('../spy')
   var hookshotData
   parseFromGithub(req)
     .then(function (hookData) {
