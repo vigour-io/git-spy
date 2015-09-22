@@ -1,6 +1,5 @@
 var https = require('https')
 var _ = require('lodash')
-var log = require('npmlog')
 var config
 
 var githubApi = module.exports = {
@@ -66,7 +65,6 @@ function sendRequest (config, data, callback, errCallback) {
 
   var req = https.request(config, callback)
   req.on('error', function (err) {
-    log.warn('http error', err)
     errCallback.apply(req, arguments)
   })
   if (data) req.write(JSON.stringify(data))

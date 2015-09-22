@@ -1,4 +1,3 @@
-var log = require('npmlog')
 var server = require('../server')
 var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
@@ -10,20 +9,14 @@ var spy = module.exports = {
   connect: function (config) {
     githubApi.authenticate(config)
     return githubApi.init()
-      .then(function (resp) {
-        log.info('githubApi initialized')
-      })
-      .catch(function (err) {
-        log.warn('githubApi failed to initialize', err)
+      .then(function (res) {
+        res = JSON.parse(res)
+        if (!res.login) {
+          throw Error('not connected')
+        }
       })
       .then(function () {
         return server.start(config)
-          .then(function () {
-            log.info('git-spy', 'success!!!')
-          })
-          .catch(function (err) {
-            log.error('git-spy', 'failure to start', err)
-          })
       })
   },
   match: function (hookshotData) {

@@ -1,4 +1,3 @@
-var log = require('npmlog')
 var restify = require('restify')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
@@ -10,7 +9,6 @@ var Server = module.exports = {
     return new Promise(function (fulfill, reject) {
       theServer.listen(config.port, function () {
         Server.running = true
-        log.info('Listening for hookshots on port', Server.port)
         fulfill()
       })
     })
@@ -18,7 +16,6 @@ var Server = module.exports = {
   stop: function () {
     Server.running = false
     theServer.close()
-    log.info('Closed the server')
   }
 }
 
