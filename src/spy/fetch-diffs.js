@@ -26,14 +26,16 @@ var fetchFileFactory = function fetchFileFactory (hookshotData) {
     var after, before
     return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.after)
       .then(function (resp) {
-        if (path.extname(filePath) !== '.json') {
-          after = JSON.parse(resp)
+        after = resp
+        if (path.extname(filePath) === '.json') {
+          after = JSON.parse(after)
         }
         return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.before)
       })
       .then(function (resp) {
-        if (path.extname(filePath) !== '.json') {
-          before = JSON.parse(resp)
+        before = resp
+        if (path.extname(filePath) === '.json') {
+          before = JSON.parse(before)
         }
         return parseDiff(before, after)
       })
