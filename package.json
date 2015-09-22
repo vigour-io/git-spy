@@ -1,14 +1,14 @@
 {
   "name": "git-spy",
-  "version": "1.0.1",
-  "description": "",
+  "version": "1.0.2",
+  "description": "watches for pushes to github and executes callbacks when matching conditions",
   "main": "src/spy/index.js",
   "scripts": {
     "start": "node src/index.js",
     "test": "gaston test"
   },
   "author": "andre.padez@gmail.com",
-  "license": "ISC",
+  "license": "GPL",
   "dependencies": {
     "lodash": "^3.10.1",
     "npmlog": "^1.2.1",
@@ -19,17 +19,32 @@
     "request": "^2.60.0"
   },
   "standard": {
-    "globals": [ 
-      "describe", 
-      "it", 
+    "globals": [
+      "describe",
+      "it",
       "assert",
-      "expect", 
-      "should", 
+      "expect",
+      "should",
       "before",
-      "beforeEach", 
+      "beforeEach",
       "after",
       "afterEach",
       "sinon"
     ]
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vigour-io/git-spy.git"
+  },
+  "keywords": [
+    "git",
+    "hooks"
+  ],
+  "bugs": {
+    "url": "https://github.com/vigour-io/git-spy/issues"
+  },
+  "homepage": "https://github.com/vigour-io/git-spy#readme"
 }
