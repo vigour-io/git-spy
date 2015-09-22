@@ -1,5 +1,5 @@
 {
-  "name": "git-spy-poc",
+  "name": "git-spy",
   "version": "1.0.0",
   "description": "",
   "main": "src/spy/index.js",
@@ -39,5 +39,19 @@
   },
   "devDependencies": {
     "request": "^2.60.0"
+  },
+  "standard": {
+    "globals": [ 
+      "describe", 
+      "it", 
+      "assert",
+      "expect", 
+      "should", 
+      "before",
+      "beforeEach", 
+      "after",
+      "afterEach",
+      "sinon"
+    ]
   }
 }

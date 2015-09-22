@@ -4,5 +4,5 @@ bundles/
 test/mocha.js
 test/mocha.css
 test/bundle.js
-config.js
+config.json
 

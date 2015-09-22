@@ -1,10 +1,7 @@
 var https = require('https')
-  , _ = require('lodash')
-  // , hookListener = require('./hookListener')
-  , log = require('npmlog')
-  , restify = require('restify')
-  , config;
-
+var _ = require('lodash')
+var log = require('npmlog')
+var config
 
 var githubApi = module.exports = {
   authenticated: false,
@@ -13,30 +10,29 @@ var githubApi = module.exports = {
   createHook: createHook,
   getHooks: getHooks,
   fetchFile: fetchFile,
-  init: function() {
-    if( githubApi.initialized ){
-      return Promise.resolve();
+  init: function () {
+    if (githubApi.initialized) {
+      return Promise.resolve()
     }
-    return new Promise(function(fulfill, reject){
+    return new Promise(function (fulfill, reject) {
       getHooks(function (hooks) {
-        var pushHook = _.find(hooks, function(hook) {
+        var pushHook = _.find(hooks, function (hook) {
           return hook.config === config.hooks.callbackUrl + '/push'
-        });
+        })
 
         if (!pushHook) {
-          createHook( { event: 'push' }, fulfill, reject )
+          createHook({ event: 'push' }, fulfill, reject)
         }
-        githubApi.initialized = true;
+        githubApi.initialized = true
       }, reject)
-    });
+    })
   },
-  authenticate: function(cfg) {
-    config = cfg;
+  authenticate: function (cfg) {
+    config = cfg
     this.authenticated = true
-    this.token = config.user.token;
+    this.token = config.user.token
   }
-};
-
+}
 
 function getHooks (callback, errCallback) {
   return sendRequest({
@@ -53,29 +49,23 @@ function getHooks (callback, errCallback) {
 
 function getChunksParser (callback) {
   return function (resp) {
-    var total = ""
-    resp.on("data", function (chunk) {
+    var total = ''
+    resp.on('data', function (chunk) {
       total += chunk
     })
-    resp.on("end", function () {
+    resp.on('end', function () {
       callback(total)
     })
   }
 }
 
-function serveCode (code) {
-  return function (req, res) {
-    res.status(code).end(code + " " + req.originalUrl)
-  }
-}
-
 function sendRequest (config, data, callback, errCallback) {
   if (!githubApi.authenticated) {
-    throw new Error("You are not authenticated")
+    throw new Error('You are not authenticated')
   }
 
   var req = https.request(config, callback)
-  req.on("error", function (err) {
+  req.on('error', function (err) {
     log.warn('http error', err)
     errCallback.apply(req, arguments)
   })
@@ -116,6 +106,3 @@ function createHook (data, callback, errCallback) {
     active: false
   }, getChunksParser(callback), errCallback)
 }
-
-
-
