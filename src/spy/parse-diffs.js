@@ -2,7 +2,10 @@ var _ = require('lodash')
 
 module.exports = function diff (before, after) {
   var fixedSchemas = fixSchema(before, after)
-  return parseDiff(fixedSchemas.before, fixedSchemas.after)
+  var parsedDiff = parseDiff(fixedSchemas.before, fixedSchemas.after)
+  parsedDiff.$before = before
+  parsedDiff.$after = after
+  return parsedDiff
 }
 
 function fixSchema (bef, aft) {
