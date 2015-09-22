@@ -23,17 +23,18 @@ module.exports = function getFilesDiff (hookshotData) {
 
 var fetchFileFactory = function fetchFileFactory (hookshotData) {
   return function (filePath) {
-    if (path.extname(filePath) !== '.json') {
-      return Promise.resolve({})
-    }
     var after, before
     return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.after)
       .then(function (resp) {
-        after = JSON.parse(resp)
+        if (path.extname(filePath) !== '.json') {
+          after = JSON.parse(resp)
+        }
         return fetchFile(hookshotData.owner, hookshotData.repo, filePath, hookshotData.before)
       })
       .then(function (resp) {
-        before = JSON.parse(resp)
+        if (path.extname(filePath) !== '.json') {
+          before = JSON.parse(resp)
+        }
         return parseDiff(before, after)
       })
   }

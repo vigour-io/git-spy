@@ -1,6 +1,12 @@
 var _ = require('lodash')
 
 module.exports = function diff (before, after) {
+  if (typeof before === 'string') {
+    return {
+      $before: before,
+      $after: after
+    }
+  }
   var fixedSchemas = fixSchema(before, after)
   var parsedDiff = parseDiff(fixedSchemas.before, fixedSchemas.after)
   parsedDiff.$before = before
