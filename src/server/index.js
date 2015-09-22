@@ -1,6 +1,5 @@
 var log = require('npmlog')
 var restify = require('restify')
-var Promise = require('bluebird')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
 

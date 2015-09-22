@@ -1,4 +1,3 @@
-var Promise = require('bluebird')
 var oboe = require('oboe')
 
 module.exports = function (req) {
