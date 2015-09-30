@@ -6,7 +6,7 @@ module.exports = function getFilesDiff (hookshotData) {
   var factory = fetchFileFactory(hookshotData)
   var files = hookshotData.files
   var promises = []
-  hookshotData.file = hookshotData.files || []
+  hookshotData.files = hookshotData.files || []
   for (var i = 0, l = hookshotData.files.length; i < l; i++) {
     var file = files[i]
     promises.push(factory(file))

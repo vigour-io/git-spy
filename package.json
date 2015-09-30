@@ -1,6 +1,6 @@
 {
   "name": "git-spy",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "watches for pushes to github and executes callbacks when matching conditions",
   "main": "src/spy/index.js",
   "scripts": {
