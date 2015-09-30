@@ -3,10 +3,10 @@ var parseDiff = require('./parse-diffs')
 var githubApi = require('../github-api')
 
 module.exports = function getFilesDiff (hookshotData) {
-  var factory = fetchFileFactory(hookshotData)
-  var files = hookshotData.files
-  var promises = []
   hookshotData.files = hookshotData.files || []
+  var files = hookshotData.files
+  var factory = fetchFileFactory(hookshotData)
+  var promises = []
   for (var i = 0, l = hookshotData.files.length; i < l; i++) {
     var file = files[i]
     promises.push(factory(file))
