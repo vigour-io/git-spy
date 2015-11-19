@@ -3,10 +3,12 @@ var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
 var fetchDiffs = require('./fetch-diffs')
 var subscriptions = []
+var config
 
 var spy = module.exports = {
   subscriptions: subscriptions,
-  connect: function (config) {
+  connect: function (cfg) {
+    config = cfg
     return githubApi.init(config)
       .then(function (res) {
         res = JSON.parse(res)

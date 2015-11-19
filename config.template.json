@@ -1,7 +1,0 @@
-{
-  "port": 60111,
-  "testPort": 60112,
-  "organization": "vigour-io",
-  "apiToken": "<github-api-token>", 
-  "callbackUrl": "<server-url>:60111"
-}
