@@ -12,10 +12,10 @@
   "dependencies": {
     "lodash": "^3.10.1",
     "oboe": "^2.1.2",
-    "restify": "^3.0.3"
+    "restify": "^4.0.3"
   },
   "devDependencies": {
-    "request": "^2.60.0"
+    "request": "^2.67.0"
   },
   "standard": {
     "globals": [
