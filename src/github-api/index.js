@@ -28,7 +28,7 @@ var githubApi = module.exports = {
     return new Promise(function (fulfill, reject) {
       getHooks(function (hooks) {
         var pushHook = _.find(hooks, function (hook) {
-          return hook.config === config.hooks.callbackUrl + '/push'
+          return hook.config === config.callbackUrl + '/push'
         })
 
         if (!pushHook) {
@@ -41,7 +41,7 @@ var githubApi = module.exports = {
 
 function getHooks (callback, errCallback) {
   var payload = _.merge(defaultPayload, {
-    path: '/orgs/' + config.organization.login
+    path: '/orgs/' + config.organization
   })
   return sendRequest(payload, {}, getChunksParser(callback), errCallback)
 }
@@ -49,12 +49,12 @@ function getHooks (callback, errCallback) {
 function createHook (data, callback, errCallback) {
   var payload = _.merge(defaultPayload, {
     method: 'POST',
-    path: '/orgs/' + config.organization.login
+    path: '/orgs/' + config.organization
   })
   return sendRequest(payload, {
     name: 'web',
     config: {
-      url: config.hooks.callbackUrl + '/' + data.event,
+      url: config.callbackUrl + '/' + data.event,
       content_type: 'json'
     },
     events: [data.event],
