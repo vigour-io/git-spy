@@ -7,8 +7,7 @@ var subscriptions = []
 var spy = module.exports = {
   subscriptions: subscriptions,
   connect: function (config) {
-    githubApi.authenticate(config)
-    return githubApi.init()
+    return githubApi.init(config)
       .then(function (res) {
         res = JSON.parse(res)
         if (!res.login) {

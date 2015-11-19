@@ -11,6 +11,7 @@
   "license": "GPL",
   "dependencies": {
     "lodash": "^3.10.1",
+    "npmlog": "^2.0.0",
     "oboe": "^2.1.2",
     "restify": "^4.0.3"
   },

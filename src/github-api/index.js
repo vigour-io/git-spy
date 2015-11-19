@@ -1,5 +1,16 @@
 var https = require('https')
 var _ = require('lodash')
+var defaultPayload = {
+  hostname: 'api.github.com',
+  method: 'GET',
+  path: undefined,
+  headers: {
+    'Accept': 'application/vnd.github.v3+json',
+    'Authorization': 'token ',
+    'User-Agent': 'vigour-git-spy'
+    }
+}
+
 var config
 
 var githubApi = module.exports = {
@@ -9,10 +20,11 @@ var githubApi = module.exports = {
   createHook: createHook,
   getHooks: getHooks,
   fetchFile: fetchFile,
-  init: function () {
-    if (githubApi.initialized) {
-      return Promise.resolve()
-    }
+  init: function (cfg) {
+    config = cfg
+    defaultPayload.headers['Authorization'] += config.apiToken
+
+    console.log(config)
     return new Promise(function (fulfill, reject) {
       getHooks(function (hooks) {
         var pushHook = _.find(hooks, function (hook) {
@@ -22,28 +34,40 @@ var githubApi = module.exports = {
         if (!pushHook) {
           createHook({ event: 'push' }, fulfill, reject)
         }
-        githubApi.initialized = true
       }, reject)
     })
-  },
-  authenticate: function (cfg) {
-    config = cfg
-    this.authenticated = true
-    this.token = config.user.token
   }
 }
 
 function getHooks (callback, errCallback) {
-  return sendRequest({
-    hostname: config.gitHub.hostName,
-    method: 'GET',
-    path: '/orgs/' + config.organization.login,
-    headers: {
-      'Accept': 'application/vnd.github.v3+json',
-      'Authorization': 'token ' + githubApi.token,
-      'User-Agent': 'vigour-git-spy'
-    }
-  }, {}, getChunksParser(callback), errCallback)
+  var payload = _.merge(defaultPayload, {
+    path: '/orgs/' + config.organization.login
+  })
+  return sendRequest(payload, {}, getChunksParser(callback), errCallback)
+}
+
+function createHook (data, callback, errCallback) {
+  var payload = _.merge(defaultPayload, {
+    method: 'POST',
+    path: '/orgs/' + config.organization.login
+  })
+  return sendRequest(payload, {
+    name: 'web',
+    config: {
+      url: config.hooks.callbackUrl + '/' + data.event,
+      content_type: 'json'
+    },
+    events: [data.event],
+    active: false
+  }, getChunksParser(callback), errCallback)
+}
+
+function fetchFile (data, callback, errCallback) {
+  var payload = _.merge(defaultPayload, {
+    path: '/repos/' + data.owner + '/' + data.repo 
+      + '/contents/' + data.path + '?ref=' + data.sha
+  })
+  return sendRequest(payload, {}, getChunksParser(callback), errCallback)
 }
 
 function getChunksParser (callback) {
@@ -59,10 +83,6 @@ function getChunksParser (callback) {
 }
 
 function sendRequest (config, data, callback, errCallback) {
-  if (!githubApi.authenticated) {
-    throw new Error('You are not authenticated')
-  }
-
   var req = https.request(config, callback)
   req.on('error', function (err) {
     errCallback.apply(req, arguments)
@@ -71,36 +91,5 @@ function sendRequest (config, data, callback, errCallback) {
   req.end()
 }
 
-function fetchFile (data, callback, errCallback) {
-  return sendRequest({
-    hostname: config.gitHub.hostName,
-    method: 'GET',
-    path: '/repos/' + data.owner + '/' + data.repo + '/contents/' + data.path + '?ref=' + data.sha,
-    headers: {
-      'Accept': 'application/vnd.github.v3.raw+json',
-      'Authorization': 'token ' + githubApi.token,
-      'User-Agent': 'vigour-git-spy'
-    }
-  }, {}, getChunksParser(callback), errCallback)
-}
 
-function createHook (data, callback, errCallback) {
-  return sendRequest({
-    hostname: config.gitHub.hostName,
-    method: 'POST',
-    path: '/orgs/' + config.organization.login,
-    headers: {
-      'Accept': 'application/vnd.github.v3+json',
-      'Authorization': 'token ' + githubApi.token,
-      'User-Agent': 'vigour-git-spy'
-    }
-  }, {
-    name: 'web',
-    config: {
-      url: config.hooks.callbackUrl + '/' + data.event,
-      content_type: 'json'
-    },
-    events: [data.event],
-    active: false
-  }, getChunksParser(callback), errCallback)
-}
+
