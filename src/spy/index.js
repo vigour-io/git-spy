@@ -7,7 +7,7 @@ var config
 
 var spy = module.exports = {
   subscriptions: subscriptions,
-  connect: function (cfg) {
+  init: function (cfg) {
     config = cfg
     return githubApi.init(config)
       .then(function (res) {
