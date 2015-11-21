@@ -1,8 +1,2 @@
-.idea
 node_modules/
-bundles/
-test/mocha.js
-test/mocha.css
-test/bundle.js
-config.json
-
+*.log
