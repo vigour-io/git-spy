@@ -10,6 +10,8 @@
   "author": "andre.padez@gmail.com",
   "license": "GPL",
   "dependencies": {
+    "axios": "^0.7.0",
+    "ip": "^1.1.0",
     "lodash": "^3.10.1",
     "npmlog": "^2.0.0",
     "oboe": "^2.1.2",
