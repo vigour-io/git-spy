@@ -48,6 +48,7 @@ theServer.post('/push', function (req, res) {
       if(currentCommit === after){
         return
       }
+      currentCommit = after
       return spy.executeCallbacks(res.callbacks, hookshotData, res.diffs)
         .then(() => currentCommit = null)
     })
