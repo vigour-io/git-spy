@@ -40,7 +40,7 @@ function checkForWebhook(){
   }
   return axios(payload)
     .then((res) => res.data)
-    .then((hooks) => hooks.filter((hook) => hook.config.url === config.callbackURL).length > 0)
+    .then((hooks) => hooks.filter((hook) => hook.config.url === config.callbackURL).length)
     .then((exists) => !exists && createWebHook())
 }
 
