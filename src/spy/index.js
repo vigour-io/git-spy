@@ -51,5 +51,6 @@ var spy = module.exports = {
     for (var i = 0, l = callbacks.length; i < l; i++) {
       callbacks[i](hookshotData, diffs)
     }
+    return Promise.resolve()
   }
 }
