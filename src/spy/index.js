@@ -7,7 +7,7 @@ var config
 
 var spy = module.exports = {
   subscriptions: subscriptions,
-  connect: function (cfg) {
+  init: function (cfg) {
     config = cfg
     return githubApi.init(config)
       .then(function (res) {
@@ -51,5 +51,6 @@ var spy = module.exports = {
     for (var i = 0, l = callbacks.length; i < l; i++) {
       callbacks[i](hookshotData, diffs)
     }
+    return Promise.resolve()
   }
 }

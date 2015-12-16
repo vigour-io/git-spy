@@ -1,5 +1,4 @@
 GITSPY_PORT=60111 \
 GITSPY_OWNER=vigour-io \
 GITSPY_API_TOKEN=<GITHUB OAUTH TOKEN> \
-GITSPY_CALLBACK_URL=http://igor.vigour.io:60111 \
-node src/index.js
+npm start

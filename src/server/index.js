@@ -27,6 +27,9 @@ theServer = restify.createServer({
 theServer.use(restify.CORS())
 theServer.use(restify.fullResponse())
 
+var currentCommit = null
+var queue = []
+
 theServer.post('/push', function (req, res) {
   var spy = require('../spy')
   var hookshotData
@@ -41,7 +44,13 @@ theServer.post('/push', function (req, res) {
       return spy.match(hookData)
     })
     .then(function (res) {
-      spy.executeCallbacks(res.callbacks, hookshotData, res.diffs)
+      var after = hookshotData.after
+      if(currentCommit === after){
+        return
+      }
+      currentCommit = after
+      return spy.executeCallbacks(res.callbacks, hookshotData, res.diffs)
+        .then(() => currentCommit = null)
     })
     .catch(function (err) {
       console.log('err', err.stack)

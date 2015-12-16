@@ -1,6 +1,6 @@
 {
   "name": "git-spy",
-  "version": "1.2.4",
+  "version": "2.2.0",
   "description": "watches for pushes to github and executes callbacks when matching conditions",
   "main": "src/spy/index.js",
   "scripts": {
@@ -16,6 +16,8 @@
     
   },
   "dependencies": {
+    "axios": "^0.7.0",
+    "ip": "^1.1.0",
     "lodash": "^3.10.1",
     "npmlog": "^2.0.0",
     "oboe": "^2.1.2",
