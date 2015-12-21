@@ -7,8 +7,14 @@
     "start": "node src/index.js",
     "test": "gaston test"
   },
-  "author": "andre.padez@gmail.com",
-  "license": "GPL",
+  "author": "Vigour <dev@vigour.io>",
+  "contributors": [
+    "Andre Padez <andre@vigour.io>"
+  ],
+  "license": "MIT",
+  "engines": {
+    
+  },
   "dependencies": {
     "axios": "^0.7.0",
     "ip": "^1.1.0",

@@ -1,9 +1,9 @@
 var ip = require('ip')
 
 var config = module.exports = {
-	port: process.env.GITSPY_PORT,
-	owner: process.env.GITSPY_OWNER || 'vigour-io',
-	apiToken: process.env.GITSPY_API_TOKEN
+  port: process.env.GITSPY_PORT,
+  owner: process.env.GITSPY_OWNER || 'vigour-io',
+  apiToken: process.env.GITSPY_API_TOKEN
 }
 
 var myIP = ip.address()

@@ -16,7 +16,7 @@ var defaultPayload = {
 
 var config
 
-var githubApi = module.exports = {
+module.exports = {
   authenticated: false,
   token: undefined,
   initialized: false,
@@ -105,8 +105,8 @@ function createHook (data, callback, errCallback) {
 
 function fetchFile (data, callback, errCallback) {
   var payload = _.merge(defaultPayload, {
-    path: '/repos/' + data.owner + '/' + data.repo 
-      + '/contents/' + data.path + '?ref=' + data.sha
+    path: '/repos/' + data.owner + '/' + data.repo +
+      '/contents/' + data.path + '?ref=' + data.sha
   })
   return sendRequest(payload, {}, getChunksParser(callback), errCallback)
 }
@@ -126,11 +126,9 @@ function getChunksParser (callback) {
 function sendRequest (config, data, callback, errCallback) {
   var req = https.request(config, callback)
   req.on('error', function (err) {
+    console.error(err)
     errCallback.apply(req, arguments)
   })
   if (data) req.write(JSON.stringify(data))
   req.end()
 }
-
-
-
