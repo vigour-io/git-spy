@@ -31,7 +31,7 @@ module.exports = {
   }
 }
 
-function checkForWebhook(){
+function checkForWebhook () {
   var url = `https://${hostName}/orgs/${config.owner}/hooks`
   var payload = {
     method: 'GET',
@@ -44,7 +44,7 @@ function checkForWebhook(){
     .then((exists) => !exists && createWebHook())
 }
 
-var createWebHook = function(){
+var createWebHook = function () {
   console.log('creating web hook')
   var url = `https://${hostName}/orgs/${config.owner}/hooks`
   var payload = {
@@ -53,7 +53,7 @@ var createWebHook = function(){
     headers: defaultPayload.headers
   }
   var postData = {
-    name: "web",
+    name: 'web',
     config: {
       url: config.callbackURL,
       content_type: 'json'
@@ -66,7 +66,7 @@ var createWebHook = function(){
 }
 
 // [TODO]: remove this shit
-function confusingInit(){
+function confusingInit () {
   return new Promise(function (fulfill, reject) {
     getHooks(function (hooks) {
       var pushHook = _.find(hooks, function (hook) {
