@@ -45,7 +45,6 @@ function checkForWebhook () {
 }
 
 var createWebHook = function () {
-  console.log('creating web hook')
   var url = `https://${hostName}/orgs/${config.owner}/hooks`
   var payload = {
     method: 'POST',
@@ -62,6 +61,7 @@ var createWebHook = function () {
     active: false
   }
 
+  console.log('creating web hook', url, postData, payload)
   return axios.post(url, postData, payload)
 }
 

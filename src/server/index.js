@@ -1,19 +1,14 @@
 'use strict'
 
 var restify = require('restify')
-var sigexit = require('sigexit')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
-var connections = []
 
 var Server = module.exports = {
   running: false,
   start: function connect (config) {
     Server.port = config.port
     return new Promise(function (fulfill, reject) {
-      theServer.on('connection', (socket) => {
-        connections.push(socket)
-      })
       theServer.listen(config.port, function () {
         Server.running = true
         fulfill()
@@ -21,10 +16,6 @@ var Server = module.exports = {
     })
   },
   stop: function () {
-    for (let i = 0, l = connections.length; i < l; i++) {
-      console.log(connections[i])
-      connections[i].close()
-    }
     Server.running = false
     theServer.close()
   }
@@ -66,5 +57,3 @@ theServer.post('/push', function (req, res) {
       console.log('err', err.stack)
     })
 })
-
-sigexit.on(Server.stop)
