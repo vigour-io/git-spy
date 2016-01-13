@@ -1,7 +1,6 @@
 'use strict'
 
 var restify = require('restify')
-var sigexit = require('sigexit')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
 var connections = []
@@ -66,5 +65,3 @@ theServer.post('/push', function (req, res) {
       console.log('err', err.stack)
     })
 })
-
-sigexit.on(Server.stop)
