@@ -82,14 +82,14 @@ function confusingInit () {
 }
 
 function getHooks (callback, errCallback) {
-  var payload = _.merge(defaultPayload, {
+  var payload = cloneMerge(defaultPayload, {
     path: '/orgs/' + config.owner
   })
   return sendRequest(payload, {}, getChunksParser(callback), errCallback)
 }
 
 function createHook (data, callback, errCallback) {
-  var payload = _.merge(defaultPayload, {
+  var payload = cloneMerge(defaultPayload, {
     method: 'POST',
     path: '/orgs/' + config.owner
   })
@@ -105,7 +105,7 @@ function createHook (data, callback, errCallback) {
 }
 
 function fetchFile (data, callback, errCallback) {
-  var payload = _.merge(defaultPayload, {
+  var payload = cloneMerge(defaultPayload, {
     path: '/repos/' + data.owner + '/' + data.repo +
       '/contents/' + data.path + '?ref=' + data.sha
   })
@@ -132,4 +132,12 @@ function sendRequest (config, data, callback, errCallback) {
   })
   if (data) req.write(JSON.stringify(data))
   req.end()
+}
+
+function cloneMerge () {
+  var args = [].slice.apply(arguments)
+  var src = args.shift()
+  var newObj = _.cloneDeep(src)
+  args.unshift(newObj)
+  return _.merge.apply(this, args)
 }
