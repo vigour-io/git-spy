@@ -1,6 +1,7 @@
 var https = require('https')
 var _ = require('lodash')
 var axios = require('axios')
+var btoa = require('btoa')
 
 var hostName = 'api.github.com'
 var defaultPayload = {
@@ -9,7 +10,6 @@ var defaultPayload = {
   path: undefined,
   headers: {
     'Accept': 'application/vnd.github.v3+json',
-    'Authorization': 'token ',
     'User-Agent': 'vigour-git-spy'
   }
 }
@@ -25,7 +25,8 @@ module.exports = {
   fetchFile: fetchFile,
   init: function (cfg) {
     config = cfg
-    defaultPayload.headers['Authorization'] += config.apiToken
+    var auth = btoa(config.gitUsername + ':' + config.gitPassword)
+    defaultPayload.headers['Authorization'] = 'Basic ' + auth
     return checkForWebhook()
       .then(confusingInit)
   }
