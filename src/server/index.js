@@ -1,5 +1,6 @@
 'use strict'
 
+var log = require('npmlog')
 var restify = require('restify')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
@@ -47,6 +48,7 @@ theServer.post('/push', function (req, res) {
     .then(function (res) {
       var after = hookshotData.after
       if (currentCommit === after) {
+        log.info('git-spy', 'currentCommit === after')
         return
       }
       currentCommit = after

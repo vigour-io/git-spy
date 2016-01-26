@@ -1,4 +1,5 @@
 var https = require('https')
+var log = require('npmlog')
 var _ = require('lodash')
 var axios = require('axios')
 var btoa = require('btoa')
@@ -39,6 +40,9 @@ function checkForWebhook () {
     url: url,
     headers: defaultPayload.headers
   }
+  if (config.verbose) {
+    log.info('git-spy', 'checking for webhook', payload)
+  }
   return axios(payload)
     .then((res) => res.data)
     .then((hooks) => hooks.filter((hook) => hook.config.url === config.callbackURL).length)
@@ -62,12 +66,17 @@ var createWebHook = function () {
     active: false
   }
 
-  console.log('creating web hook', url, postData, payload)
+  if (config.verbose) {
+    log.info('git-spy', 'creating webhook', url, postData, payload)
+  }
   return axios.post(url, postData, payload)
 }
 
 // [TODO]: remove this shit
 function confusingInit () {
+  if (config.verbose) {
+    log.info('git-spy', 'confusing init')
+  }
   return new Promise(function (fulfill, reject) {
     getHooks(function (hooks) {
       var pushHook = _.find(hooks, function (hook) {
@@ -125,6 +134,9 @@ function getChunksParser (callback) {
 }
 
 function sendRequest (config, data, callback, errCallback) {
+  if (config.verbose) {
+    log.info('git-spy', 'sending request', config, data)
+  }
   var req = https.request(config, callback)
   req.on('error', function (err) {
     console.error(err)
