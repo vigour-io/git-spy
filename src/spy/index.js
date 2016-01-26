@@ -1,3 +1,6 @@
+'use strict'
+
+var log = require('npmlog')
 var server = require('../server')
 var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
@@ -48,6 +51,9 @@ var spy = module.exports = {
   },
 
   executeCallbacks: function (callbacks, hookshotData, diffs) {
+    if (config.verbose) {
+      log.info('git-spy', 'executing callbacks')
+    }
     for (var i = 0, l = callbacks.length; i < l; i++) {
       callbacks[i](hookshotData, diffs)
     }
