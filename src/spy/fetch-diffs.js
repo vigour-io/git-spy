@@ -44,12 +44,10 @@ var fetchFileFactory = function fetchFileFactory (hookshotData) {
 }
 
 var fetchFile = function fetchFile (owner, repo, path, sha) {
-  return new Promise(function (resolve, reject) {
-    githubApi.fetchFile({
-      owner: owner,
-      repo: repo,
-      path: path,
-      sha: sha
-    }, resolve, reject)
+  return githubApi.fetchFile({
+    owner: owner,
+    repo: repo,
+    path: path,
+    sha: sha
   })
 }

@@ -1,7 +1,6 @@
 var https = require('https')
 var log = require('npmlog')
 var _ = require('lodash')
-var axios = require('axios')
 var btoa = require('btoa')
 
 var hostName = 'api.github.com'
@@ -28,122 +27,81 @@ module.exports = {
     config = cfg
     var auth = btoa(config.gitUsername + ':' + config.gitPassword)
     defaultPayload.headers['Authorization'] = 'Basic ' + auth
-    return checkForWebhook()
-      .then(confusingInit)
+    return ensureHook()
   }
 }
 
-function checkForWebhook () {
-  var url = `https://${hostName}/orgs/${config.owner}/hooks`
-  var payload = {
-    method: 'GET',
-    url: url,
-    headers: defaultPayload.headers
-  }
-  if (config.verbose) {
-    log.info('git-spy', 'checking for webhook', payload)
-  }
-  return axios(payload)
-    .then((res) => res.data)
-    .then((hooks) => hooks.filter((hook) => hook.config.url === config.callbackURL).length)
-    .then((exists) => !exists && createWebHook())
+function ensureHook () {
+  return getHooks()
+    .then((res) => {
+      var pushHook = _.find(res, (hook) => {
+        return hook.config.url === config.callbackURL
+      })
+      if (!pushHook) {
+        return createHook({ event: 'push' })
+      }
+    })
 }
 
-var createWebHook = function () {
-  var url = `https://${hostName}/orgs/${config.owner}/hooks`
-  var payload = {
+function getHooks () {
+  var payload = cloneMerge(defaultPayload, {
+    path: '/orgs/' + config.owner + '/hooks'
+  })
+  return sendRequest(payload, {}, 200)
+    .then((str) => {
+      return JSON.parse(str)
+    })
+}
+
+function createHook (data) {
+  var payload = cloneMerge(defaultPayload, {
     method: 'POST',
-    url: url,
-    headers: defaultPayload.headers
-  }
-  var postData = {
+    path: '/orgs/' + config.owner + '/hooks'
+  })
+  return sendRequest(payload, {
     name: 'web',
     config: {
       url: config.callbackURL,
       content_type: 'json'
     },
-    events: ['push'],
-    active: false
-  }
-
-  if (config.verbose) {
-    log.info('git-spy', 'creating webhook', url, postData, payload)
-  }
-  return axios.post(url, postData, payload)
-}
-
-// [TODO]: remove this shit
-function confusingInit () {
-  if (config.verbose) {
-    log.info('git-spy', 'confusing init')
-  }
-  return new Promise(function (fulfill, reject) {
-    getHooks(function (hooks) {
-      var pushHook = _.find(hooks, function (hook) {
-        return hook.config === config.callbackURL + '/push'
-      })
-
-      if (!pushHook) {
-        createHook({ event: 'push' }, fulfill, reject)
-      }
-    }, reject)
-  })
-}
-
-function getHooks (callback, errCallback) {
-  var payload = cloneMerge(defaultPayload, {
-    path: '/orgs/' + config.owner
-  })
-  return sendRequest(payload, {}, getChunksParser(callback), errCallback)
-}
-
-function createHook (data, callback, errCallback) {
-  var payload = cloneMerge(defaultPayload, {
-    method: 'POST',
-    path: '/orgs/' + config.owner
-  })
-  return sendRequest(payload, {
-    name: 'web',
-    config: {
-      url: config.callbackURL + '/' + data.event,
-      content_type: 'json'
-    },
     events: [data.event],
     active: false
-  }, getChunksParser(callback), errCallback)
+  }, 201)
 }
 
-function fetchFile (data, callback, errCallback) {
+function fetchFile (data) {
   var payload = cloneMerge(defaultPayload, {
     path: '/repos/' + data.owner + '/' + data.repo +
       '/contents/' + data.path + '?ref=' + data.sha
   })
-  return sendRequest(payload, {}, getChunksParser(callback), errCallback)
+  return sendRequest(payload, {}, 200)
 }
 
-function getChunksParser (callback) {
-  return function (resp) {
-    var total = ''
-    resp.on('data', function (chunk) {
-      total += chunk
+function sendRequest (config, data, expectedStatusCode) {
+  return new Promise(function (resolve, reject) {
+    if (config.verbose) {
+      log.info('git-spy', 'sending request', config, data)
+    }
+    var req = https.request(config, function (res) {
+      var total = ''
+      res.on('error', reject)
+      res.on('data', function (chunk) {
+        total += chunk
+      })
+      res.on('end', function () {
+        if (expectedStatusCode && expectedStatusCode !== res.statusCode) {
+          reject(total)
+        } else {
+          resolve(total)
+        }
+      })
     })
-    resp.on('end', function () {
-      callback(total)
-    })
-  }
-}
-
-function sendRequest (config, data, callback, errCallback) {
-  if (config.verbose) {
-    log.info('git-spy', 'sending request', config, data)
-  }
-  var req = https.request(config, callback)
-  req.on('error', function (err) {
-    console.error(err)
-    errCallback.apply(req, arguments)
+    req.on('error', reject)
+    if (data) {
+      req.write(JSON.stringify(data))
+    }
+    req.end()
   })
-  if (data) req.write(JSON.stringify(data))
-  req.end()
 }
 
 function cloneMerge () {

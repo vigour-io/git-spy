@@ -8,12 +8,10 @@ var mocks = {
 }
 
 describe('executing the callbacks', function () {
-  before(function (done) {
-    githubApi.authenticate(config)
-    githubApi.init()
+  before(function () {
+    return githubApi.init(config)
       .then(function (resp) {
         log.info('githubApi initialized')
-        done()
       })
       .catch(function (err) {
         log.warn('githubApi failed to initialize', err)
@@ -24,12 +22,12 @@ describe('executing the callbacks', function () {
     spy.clearSubscriptions()
   })
 
-  it('should execute callback for hookshotData', function (done) {
+  it('should execute callback for hookshotData', function () {
     var diffs, callbacks
     var hookshotData = mocks.hookshotData
     var cb = sinon.spy()
     spy.on(mocks.patterns['file with fields'], cb)
-    spy.match(hookshotData)
+    return spy.match(hookshotData)
       .then(function (res) {
         callbacks = res.callbacks
         diffs = res.diffs
@@ -43,16 +41,15 @@ describe('executing the callbacks', function () {
         // cb.should.have.been.called
         expect(cb).to.have.been.called
       })
-      .done(done)
   })
 
-  it('more than one match should only fire one callback', function (done) {
+  it('more than one match should only fire one callback', function () {
     var diffs, callbacks
     var hookshotData = mocks.hookshotData
     var cb = sinon.spy()
     spy.on(mocks.patterns['file with fields'], cb)
     spy.on(mocks.patterns['all repos'], cb)
-    spy.match(hookshotData)
+    return spy.match(hookshotData)
       .then(function (res) {
         callbacks = res.callbacks
         diffs = res.diffs
@@ -66,6 +63,5 @@ describe('executing the callbacks', function () {
         // cb.should.have.been.called
         expect(cb).to.have.been.calledOnce
       })
-      .done(done)
   })
 })

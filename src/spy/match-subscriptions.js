@@ -1,4 +1,4 @@
-var _ = require('lodash')
+var _intersection = require('lodash/array/intersection')
 
 module.exports = function (hookshotData, diffs) {
   var spy = require('./')
@@ -21,6 +21,9 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
   for (var i = 0, l = subs.length; i < l; i++) {
     var sub = subs[i]
     var repos = Object.keys(sub)
+    if (repos[repos.length - 1] === 'callback') {
+      repos.pop()
+    }
     if (!~repos.indexOf('*') && !~repos.indexOf(repo)) {
       continue
     }
@@ -31,7 +34,6 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
     }
 
     var branchesKeys = Object.keys(branches)
-
     if (!~branchesKeys.indexOf('*') && !~branchesKeys.indexOf(branch)) {
       continue
     }
@@ -40,12 +42,12 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
       matched.push(sub)
       continue
     }
-    subFiles = Object.keys(subFiles)
-    var intersection = _.intersection(subFiles, files)
+    var subFilesKeys = Object.keys(subFiles)
+    var intersection = _intersection(subFilesKeys, files)
     if (intersection.length === 0) {
       continue
     }
-    subFiles = branches[branch]
+    // subFiles = branches[branch]
     for (var j = 0, ll = intersection.length; j < ll; j++) {
       var file = intersection[j]
       var subFile = subFiles[file]
@@ -64,11 +66,12 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
   return matched
 }
 
-var matchFields = function matchFields (file, subFields, diff) {
-  var thisDiff = diff[file]
+var matchFields = function matchFields (file, subFields, diffs) {
+  var thisDiff = diffs[file]
   for (var i = 0, l = subFields.length; i < l; i++) {
     var parsedField = subFields[i].split('.')
-    for (var j = 0, ll = parsedField.length; j < ll; j++) {
+    var ll = parsedField.length
+    for (var j = 0; j < ll; j++) {
       thisDiff = thisDiff[parsedField[j]]
       if (!thisDiff) {
         break

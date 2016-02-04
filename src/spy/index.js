@@ -51,7 +51,7 @@ var spy = module.exports = {
   },
 
   executeCallbacks: function (callbacks, hookshotData, diffs) {
-    if (config.verbose) {
+    if (config && config.verbose) {
       log.info('git-spy', 'executing callbacks')
     }
     for (var i = 0, l = callbacks.length; i < l; i++) {

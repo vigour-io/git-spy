@@ -7,10 +7,9 @@ var mocks = {
 }
 
 describe('restify server', function () {
-  before(function (done) {
+  before(function () {
     config.port = config.testPort
-    server.start(config)
-      .then(done)
+    return server.start(config)
   })
 
   after(function () {
