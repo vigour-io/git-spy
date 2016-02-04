@@ -13,12 +13,6 @@ var spy = module.exports = {
   init: function (cfg) {
     config = cfg
     return githubApi.init(config)
-      .then(function (res) {
-        res = JSON.parse(res)
-        if (!res.login) {
-          throw Error('not connected')
-        }
-      })
       .then(function () {
         return server.start(config)
       })
