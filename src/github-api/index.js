@@ -72,7 +72,10 @@ function createHook (data) {
 function fetchFile (data) {
   var payload = cloneMerge(defaultPayload, {
     path: '/repos/' + data.owner + '/' + data.repo +
-      '/contents/' + data.path + '?ref=' + data.sha
+      '/contents/' + data.path + '?ref=' + data.sha,
+    headers: {
+      Accept: 'application/vnd.github.v3.raw+json'
+    }
   })
   return sendRequest(payload, {}, 200)
 }

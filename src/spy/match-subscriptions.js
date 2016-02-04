@@ -24,9 +24,11 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
     if (repos[repos.length - 1] === 'callback') {
       repos.pop()
     }
+
     if (!~repos.indexOf('*') && !~repos.indexOf(repo)) {
       continue
     }
+
     var branches = sub['*'] || sub[repo]
     if (branches === true) {
       matched.push(sub)
@@ -37,17 +39,19 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
     if (!~branchesKeys.indexOf('*') && !~branchesKeys.indexOf(branch)) {
       continue
     }
+
     var subFiles = branches['*'] || branches[branch]
     if (subFiles === true) {
       matched.push(sub)
       continue
     }
+
     var subFilesKeys = Object.keys(subFiles)
     var intersection = _intersection(subFilesKeys, files)
     if (intersection.length === 0) {
       continue
     }
-    // subFiles = branches[branch]
+
     for (var j = 0, ll = intersection.length; j < ll; j++) {
       var file = intersection[j]
       var subFile = subFiles[file]
