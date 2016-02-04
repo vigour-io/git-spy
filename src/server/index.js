@@ -56,6 +56,6 @@ theServer.post('/push', function (req, res) {
         .then(() => currentCommit = null)
     })
     .catch(function (err) {
-      console.log('err', err.stack)
+      log.error('git-spy', err, err.stack)
     })
 })
