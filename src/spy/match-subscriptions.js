@@ -52,38 +52,38 @@ var tryToMatch = function tryToMatch (subs, hookshot, diffs) {
       continue
     }
 
-    for (var j = 0, ll = intersection.length; j < ll; j++) {
-      var file = intersection[j]
-      var subFile = subFiles[file]
-      if (subFile === true) {
-        matched.push(sub)
-        break
-      }
+    // for (var j = 0, ll = intersection.length; j < ll; j++) {
+    //   var file = intersection[j]
+    //   var subFile = subFiles[file]
+    //   if (subFile === true) {
+    matched.push(sub)
+      //   break
+      // }
 
-      var subFields = Object.keys(subFile)
-      if (matchFields(file, subFields, diffs)) {
-        matched.push(sub)
-        break
-      }
-    }
+      // var subFields = Object.keys(subFile)
+      // if (matchFields(file, subFields, diffs)) {
+      //   matched.push(sub)
+      //   break
+      // }
+    // }
   }
   return matched
 }
 
-var matchFields = function matchFields (file, subFields, diffs) {
-  var thisDiff = diffs[file]
-  for (var i = 0, l = subFields.length; i < l; i++) {
-    var parsedField = subFields[i].split('.')
-    var ll = parsedField.length
-    for (var j = 0; j < ll; j++) {
-      thisDiff = thisDiff[parsedField[j]]
-      if (!thisDiff) {
-        break
-      }
-      if (j === ll - 1) {
-        return true
-      }
-    }
-  }
-  return false
-}
+// var matchFields = function matchFields (file, subFields, diffs) {
+//   var thisDiff = diffs[file]
+//   for (var i = 0, l = subFields.length; i < l; i++) {
+//     var parsedField = subFields[i].split('.')
+//     var ll = parsedField.length
+//     for (var j = 0; j < ll; j++) {
+//       thisDiff = thisDiff[parsedField[j]]
+//       if (!thisDiff) {
+//         break
+//       }
+//       if (j === ll - 1) {
+//         return true
+//       }
+//     }
+//   }
+//   return false
+// }

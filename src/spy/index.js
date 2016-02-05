@@ -4,7 +4,7 @@ var log = require('npmlog')
 var server = require('../server')
 var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
-var fetchDiffs = require('./fetch-diffs')
+// var fetchDiffs = require('./fetch-diffs')
 var subscriptions = []
 var config
 
@@ -18,21 +18,25 @@ var spy = module.exports = {
       })
   },
   match: function (hookshotData) {
-    var diffs
-    return fetchDiffs(hookshotData)
-      .then(function (ds) {
-        diffs = ds
-      })
-      .then(function () {
-        return matchSubscriptions(hookshotData, diffs)
-      })
-      .then(function (callbacks) {
-        var res = {
-          callbacks: callbacks,
-          diffs: diffs
-        }
-        return res
-      })
+    return Promise.resolve({
+      callbacks: matchSubscriptions(hookshotData)
+    })
+    // var diffs
+    // return fetchDiffs(hookshotData)
+    //   .then(function (ds) {
+    //     console.log('\n\nDIFFS\n', ds)
+    //     diffs = ds
+    //   })
+    //   .then(function () {
+    //     return matchSubscriptions(hookshotData, diffs)
+    //   })
+    //   .then(function (callbacks) {
+    //     var res = {
+    //       callbacks: callbacks,
+    //       diffs: diffs
+    //     }
+    //     return res
+    //   })
   },
 
   on: function (pattern, callback) {

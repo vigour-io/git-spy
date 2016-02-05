@@ -23,19 +23,20 @@ describe('executing the callbacks', function () {
   })
 
   it('should execute callback for hookshotData', function () {
-    var diffs, callbacks
+    // var diffs
+    var callbacks
     var hookshotData = mocks.hookshotData
     var cb = sinon.spy()
     spy.on(mocks.patterns['file with fields'], cb)
     return spy.match(hookshotData)
       .then(function (res) {
         callbacks = res.callbacks
-        diffs = res.diffs
+        // diffs = res.diffs
         assert.equal(callbacks.length, 1)
         assert.equal(callbacks[0], cb)
       })
       .then(function () {
-        spy.executeCallbacks(callbacks, hookshotData, diffs)
+        spy.executeCallbacks(callbacks, hookshotData/*, diffs*/)
       })
       .then(function () {
         // cb.should.have.been.called
