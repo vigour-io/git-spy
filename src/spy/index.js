@@ -49,10 +49,11 @@ var spy = module.exports = {
   },
 
   executeCallbacks: function (callbacks, hookshotData, diffs) {
-    if (config && config.verbose) {
+    var l = callbacks.length
+    if (config && config.verbose && l > 0) {
       log.info('git-spy', 'executing callbacks')
     }
-    for (var i = 0, l = callbacks.length; i < l; i++) {
+    for (var i = 0; i < l; i++) {
       callbacks[i](hookshotData, diffs)
     }
     return Promise.resolve()
