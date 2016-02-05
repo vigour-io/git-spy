@@ -47,7 +47,7 @@ function getHooks () {
   var payload = cloneMerge(defaultPayload, {
     path: '/orgs/' + config.owner + '/hooks'
   })
-  return sendRequest(payload, {}, 200)
+  return sendRequest(payload, false, 200)
     .then((str) => {
       return JSON.parse(str)
     })
@@ -77,15 +77,15 @@ function fetchFile (data) {
       Accept: 'application/vnd.github.v3.raw+json'
     }
   })
-  return sendRequest(payload, {}, 200)
+  return sendRequest(payload, false, 200)
 }
 
-function sendRequest (config, data, expectedStatusCode) {
+function sendRequest (options, data, expectedStatusCode) {
   return new Promise(function (resolve, reject) {
     if (config.verbose) {
-      log.info('git-spy', 'sending request', config, data)
+      log.info('git-spy', 'sending request', options, 'data', data)
     }
-    var req = https.request(config, function (res) {
+    var req = https.request(options, function (res) {
       var total = ''
       res.on('error', reject)
       res.on('data', function (chunk) {
@@ -93,7 +93,13 @@ function sendRequest (config, data, expectedStatusCode) {
       })
       res.on('end', function () {
         if (expectedStatusCode && expectedStatusCode !== res.statusCode) {
-          reject(total)
+          var error = new Error('Unexpected response')
+          error.response = {
+            statusCode: res.statusCode,
+            headers: res.headers,
+            body: total
+          }
+          reject(error)
         } else {
           resolve(total)
         }
