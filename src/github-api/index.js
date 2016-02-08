@@ -47,6 +47,9 @@ function getHooks () {
   var payload = cloneMerge(defaultPayload, {
     path: '/orgs/' + config.owner + '/hooks'
   })
+  if (config.verbose) {
+    log.info('getting hooks')
+  }
   return sendRequest(payload, false, 200)
     .then((str) => {
       return JSON.parse(str)
@@ -58,7 +61,7 @@ function createHook (data) {
     method: 'POST',
     path: '/orgs/' + config.owner + '/hooks'
   })
-  return sendRequest(payload, {
+  var dataObj = {
     name: 'web',
     config: {
       url: config.callbackURL,
@@ -66,7 +69,11 @@ function createHook (data) {
     },
     events: [data.event],
     active: false
-  }, 201)
+  }
+  if (config.verbose) {
+    log.info('creating hook')
+  }
+  return sendRequest(payload, dataObj, 201)
 }
 
 function fetchFile (data) {
