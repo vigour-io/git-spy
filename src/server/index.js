@@ -19,6 +19,7 @@ var Server = module.exports = {
   stop: function () {
     Server.running = false
     theServer.close()
+    return Promise.resolve()
   }
 }
 

@@ -1,7 +1,6 @@
 'use strict'
 
 var log = require('npmlog')
-var server = require('../server')
 var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
 // var fetchDiffs = require('./fetch-diffs')
@@ -9,13 +8,17 @@ var subscriptions = []
 var config
 
 var spy = module.exports = {
+  server: require('../server'),
   subscriptions: subscriptions,
   init: function (cfg) {
     config = cfg
     return githubApi.init(config)
-      .then(function () {
-        return server.start(config)
+      .then(() => {
+        return this.server.start(config)
       })
+  },
+  stop: function () {
+    return this.server.stop()
   },
   match: function (hookshotData) {
     return Promise.resolve({
