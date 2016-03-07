@@ -79,7 +79,7 @@ function sendRequest (options, data, expectedStatusCode, secure) {
         total += chunk
       })
       res.on('end', function () {
-        if (expectedStatusCode && expectedStatusCode !== res.statusCode && expectedStatusCode.indexOf(res.statusCode) !== -1) {
+        if (expectedStatusCode && (expectedStatusCode.indexOf ? expectedStatusCode.indexOf(res.statusCode) === -1 : expectedStatusCode !== res.statusCode)) {
           var error = new Error('Unexpected response')
           error.response = {
             statusCode: res.statusCode,
