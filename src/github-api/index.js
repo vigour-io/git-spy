@@ -53,7 +53,7 @@ function createHook (data) {
   if (config.verbose) {
     log.info('creating hook')
   }
-  return sendRequest(payload, false, 201)
+  return sendRequest(payload, false, [200, 201])
 }
 
 function fetchFile (data) {
@@ -79,7 +79,7 @@ function sendRequest (options, data, expectedStatusCode, secure) {
         total += chunk
       })
       res.on('end', function () {
-        if (expectedStatusCode && expectedStatusCode !== res.statusCode) {
+        if (expectedStatusCode && expectedStatusCode !== res.statusCode && expectedStatusCode.indexOf(res.statusCode) !== -1) {
           var error = new Error('Unexpected response')
           error.response = {
             statusCode: res.statusCode,
