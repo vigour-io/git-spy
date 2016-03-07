@@ -1,6 +1,11 @@
+'use strict'
+
+var url = require('url')
 var https = require('https')
+var http = require('http')
 var log = require('npmlog')
-var _ = require('lodash')
+var _cloneDeep = require('lodash.cloneDeep')
+var _merge = require('lodash.merge')
 var btoa = require('btoa')
 
 var hostName = 'api.github.com'
@@ -13,6 +18,7 @@ var defaultPayload = {
     'User-Agent': 'vigour-git-spy'
   }
 }
+var defaultGwfPayload = _cloneDeep(defaultPayload)
 
 var config
 
@@ -21,45 +27,28 @@ module.exports = {
   token: undefined,
   initialized: false,
   createHook: createHook,
-  getHooks: getHooks,
   fetchFile: fetchFile,
   init: function (cfg) {
     config = cfg
     var auth = btoa(config.gitUsername + ':' + config.gitPassword)
     defaultPayload.headers['Authorization'] = 'Basic ' + auth
+    var gwfAuth = btoa(config.gwfUser + ':' + config.gwfPass)
+    defaultGwfPayload.headers['Authorization'] = 'Basic ' + gwfAuth
     return ensureHook()
   }
 }
 
 function ensureHook () {
-  return getHooks()
-    .then((res) => {
-      var pushHook = _.find(res, (hook) => {
-        return hook.config.url === config.callbackURL
-      })
-      if (!pushHook) {
-        return createHook({ event: 'push' })
-      }
-    })
-}
-
-function getHooks () {
-  var payload = cloneMerge(defaultPayload, {
-    path: '/orgs/' + config.owner + '/hooks'
-  })
-  if (config.verbose) {
-    log.info('getting hooks')
-  }
-  return sendRequest(payload, false, 200)
-    .then((str) => {
-      return JSON.parse(str)
-    })
+  return createHook({ event: 'push' })
 }
 
 function createHook (data) {
-  var payload = cloneMerge(defaultPayload, {
+  var gwfURL = url.parse(config.gwfURL)
+  var payload = cloneMerge(defaultGwfPayload, {
     method: 'POST',
-    path: '/orgs/' + config.owner + '/hooks'
+    hostname: gwfURL.hostname,
+    port: parseInt(gwfURL.port, 10),
+    path: '/subscribe?url=' + config.callbackURL
   })
   var dataObj = {
     name: 'web',
@@ -84,15 +73,15 @@ function fetchFile (data) {
       Accept: 'application/vnd.github.v3.raw+json'
     }
   })
-  return sendRequest(payload, false, 200)
+  return sendRequest(payload, false, 200, true)
 }
 
-function sendRequest (options, data, expectedStatusCode) {
+function sendRequest (options, data, expectedStatusCode, secure) {
   return new Promise(function (resolve, reject) {
     if (config.verbose) {
       log.info('git-spy', 'sending request', options, 'data', data)
     }
-    var req = https.request(options, function (res) {
+    var req = (secure ? https : http).request(options, function (res) {
       var total = ''
       res.on('error', reject)
       res.on('data', function (chunk) {
@@ -112,7 +101,9 @@ function sendRequest (options, data, expectedStatusCode) {
         }
       })
     })
-    req.on('error', reject)
+    req.on('error', function (err) {
+      reject(err)
+    })
     if (data) {
       req.write(JSON.stringify(data))
     }
@@ -123,7 +114,7 @@ function sendRequest (options, data, expectedStatusCode) {
 function cloneMerge () {
   var args = [].slice.apply(arguments)
   var src = args.shift()
-  var newObj = _.cloneDeep(src)
+  var newObj = _cloneDeep(src)
   args.unshift(newObj)
-  return _.merge.apply(this, args)
+  return _merge.apply(this, args)
 }
