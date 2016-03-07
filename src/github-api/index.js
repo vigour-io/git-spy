@@ -50,19 +50,10 @@ function createHook (data) {
     port: parseInt(gwfURL.port, 10),
     path: '/subscribe?url=' + config.callbackURL
   })
-  var dataObj = {
-    name: 'web',
-    config: {
-      url: config.callbackURL,
-      content_type: 'json'
-    },
-    events: [data.event],
-    active: false
-  }
   if (config.verbose) {
     log.info('creating hook')
   }
-  return sendRequest(payload, dataObj, 201)
+  return sendRequest(payload, false, 201)
 }
 
 function fetchFile (data) {
