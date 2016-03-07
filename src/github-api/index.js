@@ -83,6 +83,7 @@ function sendRequest (options, data, expectedStatusCode, secure) {
           var error = new Error('Unexpected response')
           error.response = {
             statusCode: res.statusCode,
+            expectedStatusCode: expectedStatusCode,
             headers: res.headers,
             body: total
           }
