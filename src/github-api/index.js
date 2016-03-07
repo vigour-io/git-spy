@@ -4,7 +4,7 @@ var url = require('url')
 var https = require('https')
 var http = require('http')
 var log = require('npmlog')
-var _cloneDeep = require('lodash.cloneDeep')
+var _cloneDeep = require('lodash.clonedeep')
 var _merge = require('lodash.merge')
 var btoa = require('btoa')
 
