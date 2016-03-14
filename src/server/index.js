@@ -1,6 +1,6 @@
 'use strict'
 
-var log = require('npmlog')
+var log = require('../utils/logger')
 var restify = require('restify')
 var parseFromGithub = require('../hookshot-manager').parseFromGithub
 var theServer
@@ -9,10 +9,11 @@ var Server = module.exports = {
   running: false,
   start: function connect (config) {
     Server.port = config.port
-    return new Promise(function (fulfill, reject) {
+    return new Promise(function (resolve, reject) {
       theServer.listen(config.port, function () {
+        log.info('server listening on port %s', config.port)
         Server.running = true
-        fulfill()
+        resolve()
       })
     })
   },
@@ -49,14 +50,16 @@ theServer.post('/push', function (req, res) {
     .then(function (res) {
       var after = hookshotData.after
       if (currentCommit === after) {
-        log.info('git-spy', 'currentCommit === after')
+        log.debug('currentCommit === after')
         return
       }
       currentCommit = after
       return spy.executeCallbacks(res.callbacks, hookshotData, res.diffs)
-        .then(() => currentCommit = null)
+        .then(function assignCurrentCommit () {
+          currentCommit = null
+        })
     })
     .catch(function (err) {
-      log.error('git-spy', err, err.stack)
+      log.error({err: err}, 'error parsing from github')
     })
 })

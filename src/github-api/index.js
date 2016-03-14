@@ -3,7 +3,7 @@
 var url = require('url')
 var https = require('https')
 var http = require('http')
-var log = require('npmlog')
+var log = require('../utils/logger')
 var _cloneDeep = require('lodash.clonedeep')
 var _merge = require('lodash.merge')
 var btoa = require('btoa')
@@ -70,7 +70,7 @@ function fetchFile (data) {
 function sendRequest (options, data, expectedStatusCode, secure) {
   return new Promise(function (resolve, reject) {
     if (config.verbose) {
-      log.info('git-spy', 'sending request', options, 'data', data)
+      log.info({options: options, data: data}, 'sending request')
     }
     var req = (secure ? https : http).request(options, function (res) {
       var total = ''

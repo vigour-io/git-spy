@@ -2,7 +2,7 @@ var oboe = require('oboe')
 
 module.exports = function (req) {
   var parser = new OboeParser()
-  return new Promise(function (fulfill, reject) {
+  return new Promise(function (resolve, reject) {
     oboe(req)
       .node('before', parser.before.bind(parser))
       .node('after', parser.after.bind(parser))
@@ -19,7 +19,7 @@ module.exports = function (req) {
         var hookData = parser.hookData
         hookData.branch = hookData.ref && hookData.ref.split('/').pop()
         hookData.files = hookData.files && Object.keys(hookData.files)
-        fulfill(hookData)
+        resolve(hookData)
       })
       .fail(reject)
   })
