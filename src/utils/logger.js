@@ -2,8 +2,8 @@
 var bunyan = require('bunyan')
 
 var log = bunyan.createLogger({
-  name: process.env.LOGGER_NAME || 'git-spy',
-  level: process.env.LOGGER_LEVEL || 'info'
+  name: process.env.GIT_SPY_LOGGER_NAME || 'git-spy',
+  level: process.env.GIT_SPY_LOGGER_LEVEL || 'info'
 })
 
 module.exports = {
