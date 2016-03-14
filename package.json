@@ -4,6 +4,7 @@
   "description": "watches for pushes to github and executes callbacks when matching conditions",
   "main": "src/spy/index.js",
   "scripts": {
+    "dev": "npm start | ./node_modules/.bin/bunyan",
     "start": "node src/index.js",
     "test": "gaston test"
   },
