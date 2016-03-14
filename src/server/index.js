@@ -11,6 +11,7 @@ var Server = module.exports = {
     Server.port = config.port
     return new Promise(function (resolve, reject) {
       theServer.listen(config.port, function () {
+        log.info('server listening on port %s', config.port)
         Server.running = true
         resolve()
       })
