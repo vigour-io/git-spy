@@ -1,9 +1,8 @@
 'use strict'
 
-var log = require('npmlog')
+var log = require('../utils/logger')
 var githubApi = require('../github-api')
 var matchSubscriptions = require('./match-subscriptions')
-// var fetchDiffs = require('./fetch-diffs')
 var subscriptions = []
 var config
 
@@ -24,22 +23,6 @@ var spy = module.exports = {
     return Promise.resolve({
       callbacks: matchSubscriptions(hookshotData)
     })
-    // var diffs
-    // return fetchDiffs(hookshotData)
-    //   .then(function (ds) {
-    //     console.log('\n\nDIFFS\n', ds)
-    //     diffs = ds
-    //   })
-    //   .then(function () {
-    //     return matchSubscriptions(hookshotData, diffs)
-    //   })
-    //   .then(function (callbacks) {
-    //     var res = {
-    //       callbacks: callbacks,
-    //       diffs: diffs
-    //     }
-    //     return res
-    //   })
   },
 
   on: function (pattern, callback) {
@@ -54,7 +37,7 @@ var spy = module.exports = {
   executeCallbacks: function (callbacks, hookshotData, diffs) {
     var l = callbacks.length
     if (config && config.verbose && l > 0) {
-      log.info('git-spy', 'executing callbacks')
+      log.info('executing callbacks')
     }
     for (var i = 0; i < l; i++) {
       callbacks[i](hookshotData, diffs)
